@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 
+
 namespace Apex.Catering.Data
 {
     public class Menu
@@ -13,6 +14,7 @@ namespace Apex.Catering.Data
         public required int MenuId { get; set; }
 
         
+       
         [MaxLength(30)]
         public string? MenuName { get; set; }
 
