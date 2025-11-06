@@ -10,7 +10,10 @@ namespace Apex.Catering.Data
 
 
         [MaxLength(50)]
-        public required string Description { get; set; } // Nullable
+        public required string Description { get; set; } // Not Nullable
         public decimal UnitPrice { get; set; }
+
+        public virtual ICollection<MenuFoodItem> MenuFoodItem { get; set; } = new List<MenuFoodItem>();
+
     }
 }

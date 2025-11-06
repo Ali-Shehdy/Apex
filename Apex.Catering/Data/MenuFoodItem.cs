@@ -5,12 +5,12 @@ namespace Apex.Catering.Data
 {
     public class MenuFoodItem
     {
-        public int MenuId { get; set; } // Forigen key
+        public int MenuId { get; set; } // Primary  key
 
-        public int FoodItemId { get; set; } // Forigen key
+        public int FoodItemId { get; set; } // Primary  key
 
         //Navigation properties
-        public virtual Menu? Menu { get; set; }
-        public virtual FoodItem FoodItem { get; set; }
+        public virtual Menu? Menu { get; set; } // Relation property to Menu
+        public virtual  FoodItem? FoodItem { get; set; } // Relation property to FoodItem
     }
 }

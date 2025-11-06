@@ -10,9 +10,9 @@ namespace Apex.Catering.Data
         [Key]
         public int FoodBookingId { get; set; } // Primary key
 
-        public int ClintReferenceId { get; set; } // Nullable 
-        public int NumberOfGuests { get; set; } // Nullable
-        public int MenuId { get; set; } // Foreign key to Menu
+        public int? ClintReferenceId { get; set; } // Nullable 
+        public int? NumberOfGuests { get; set; } // Nullable
+        public int? MenuId { get; set; } // Foreign key to Menu
 
         public virtual Menu? Menu { get; set; } // Navigation property to Menu
 
