@@ -72,6 +72,37 @@ namespace Apex.Catering.Data
                 new FoodItem { FoodItemId = 8, Description = "Vegetable Lasagna", UnitPrice = 9.50M }
             );
 
+            modelBuilder.Entity<FoodBooking>().HasData(
+                
+                new FoodBooking { FoodBookingId = 1, ClintReferenceId = 1001, NumberOfGuests = 50, MenuId = 1 },
+                new FoodBooking { FoodBookingId = 2, ClintReferenceId = 1002, NumberOfGuests = 30, MenuId = 2 },
+                new FoodBooking { FoodBookingId = 3, ClintReferenceId = 1003, NumberOfGuests = 20, MenuId = 3 },
+                new FoodBooking { FoodBookingId = 4, ClintReferenceId = 1004, NumberOfGuests = 40, MenuId = 1 }
+            );
+
+            modelBuilder.Entity<Menu>().HasData(
+                new Menu { MenuId = 1, MenuName = "Standard Buffet" },
+                new Menu { MenuId = 2, MenuName = "Vegetarian Delight" },
+                new Menu { MenuId = 3, MenuName = "Seafood Special" }
+            );
+
+            modelBuilder.Entity<MenuFoodItem>().HasData(
+                // Standard Buffet Menu
+                new MenuFoodItem { MenuId = 1, FoodItemId = 1 },
+                new MenuFoodItem { MenuId = 1, FoodItemId = 2 },
+                new MenuFoodItem { MenuId = 1, FoodItemId = 4 },
+                new MenuFoodItem { MenuId = 1, FoodItemId = 5 },
+                // Vegetarian Delight Menu
+                new MenuFoodItem { MenuId = 2, FoodItemId = 3 },
+                new MenuFoodItem { MenuId = 2, FoodItemId = 4 },
+                new MenuFoodItem { MenuId = 2, FoodItemId = 6 },
+                new MenuFoodItem { MenuId = 2, FoodItemId = 8 },
+                // Seafood Special Menu
+                new MenuFoodItem { MenuId = 3, FoodItemId = 5 },
+                new MenuFoodItem { MenuId = 3, FoodItemId = 7 },
+                new MenuFoodItem { MenuId = 3, FoodItemId = 4 }
+            );
+
         }
     }
     }
