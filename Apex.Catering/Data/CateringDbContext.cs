@@ -19,6 +19,7 @@ namespace Apex.Catering.Data
         public DbSet<MenuFoodItem> MenuFoodItems { get; set; } = null!;
         public DbSet<FoodBooking> FoodBookings { get; set; } = null!;
 
+
         private string DbPath { get; set; } = string.Empty;
 
         // Constructor to set-up the database path and name
