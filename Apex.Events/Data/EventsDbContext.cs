@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Apex.Venues.Data;
+//using Apex.Venues.Data;
 
 namespace Apex.Events.Data
 {
     public class EventsDbContext : DbContext
     {
-        public EventsDbContext(DbContextOptions<EventsDbContext> options) : base(options)
-        {
-        }
+        //public EventsDbContext(DbContextOptions<EventsDbContext> options) : base(options)
+        //{
+        //}
 
         public DbSet<Events> Events { get; set; }
         public DbSet<Guest> Guests { get; set; }
@@ -43,17 +43,17 @@ namespace Apex.Events.Data
                 .WithMany(st => st.Staffings)
                 .HasForeignKey(s => s.StaffId);
 
-            // 1 to 0..1 R between Events & FoodBooking 
-            modelBuilder.Entity<Events>()
-                .HasOne(e => e.FoodBooking)
-                .WithOne()
-                .HasForeignKey<Events>(e => e.FoodBookingId);
+            //// 1 to 0..1 R between Events & FoodBooking 
+            //modelBuilder.Entity<Events>()
+            //    .HasOne(e => e.FoodBooking)
+            //    .WithOne()
+            //    .HasForeignKey<Events>(e => e.FoodBookingId);
 
-            // 1 to 0..1 R between Events & Reservation
-            modelBuilder.Entity<Events>()
-                .HasOne<Reservation>()
-                .WithOne()
-                .HasForeignKey<Events>(e => e.ReservationReference);
+            //// 1 to 0..1 R between Events & Reservation
+            //modelBuilder.Entity<Events>()
+            //    .HasOne<Reservation>()
+            //    .WithOne()
+            //    .HasForeignKey<Events>(e => e.ReservationReference);
 
             // Seed data
             modelBuilder.Entity<Events>().HasData(
@@ -66,14 +66,14 @@ namespace Apex.Events.Data
                 new Guest { GuestId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane.smith@example.com" }
             );
 
-            using (var context = new EventsDbContext())
-            {
-                var newEvent = new Events { EventName = "New Event", EventDate = DateTime.Now };
-                context.AddEvent(newEvent);
+        //    using (var context = new EventsDbContext())
+        //    {
+        //        var newEvent = new Events { EventName = "New Event", EventDate = DateTime.Now };
+        //        context.AddEvent(newEvent);
 
-                var newGuest = new Guest { FirstName = "Alice", LastName = "Johnson", Email = "alice.johnson@example.com" };
-                context.AddGuest(newGuest);
-        }
+        //        var newGuest = new Guest { FirstName = "Alice", LastName = "Johnson", Email = "alice.johnson@example.com" };
+        //        context.AddGuest(newGuest);
+        //}
         }
 
 
@@ -97,17 +97,17 @@ namespace Apex.Events.Data
         }
 
         //Method to Add Data
-        public void AddEvent(Events newEvent)
-        {
-            this.Events.Add(newEvent);
-            this.SaveChanges();
-        }
+        //public void AddEvent(Events newEvent)
+        //{
+        //    this.Events.Add(newEvent);
+        //    this.SaveChanges();
+        //}
 
-        public void AddGuest(Guest newGuest)
-        {
-            this.Guests.Add(newGuest);
-            this.SaveChanges();
-        }
+        //public void AddGuest(Guest newGuest)
+        //{
+        //    this.Guests.Add(newGuest);
+        //    this.SaveChanges();
+        //}
 
         //public void AddGuestBooking(GuestBooking newGuestBooking)
         //{

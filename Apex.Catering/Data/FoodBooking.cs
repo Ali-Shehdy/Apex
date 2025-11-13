@@ -14,7 +14,5 @@ namespace Apex.Catering.Data
 
         public virtual Menu? Menu { get; set; } // Navigation property to Menu
 
-        // Navigation property to Event (1-to-0..1 relationship)
-        public virtual Events? Events { get; set; } // Reference to Event
     }
 }
