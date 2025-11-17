@@ -2,10 +2,13 @@
 //using Apex.Venues.Data;
 
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Apex.Events.Data
 {
     public class Events
     {
+        [Key]
         public int EventId { get; set; } // Primary key
         public string EventName { get; set; } = string.Empty; // Not Nullable
         public DateTime EventDate { get; set; }

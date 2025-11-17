@@ -57,23 +57,16 @@ namespace Apex.Events.Data
 
             // Seed data
             modelBuilder.Entity<Events>().HasData(
-                new Events { EventId = 1, EventName = "Sample Event 1", EventDate = DateTime.Now },
-                new Events { EventId = 2, EventName = "Sample Event 2", EventDate = DateTime.Now.AddDays(1) }
-            );
+     new Events { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1) },
+     new Events { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2) }
+ );
 
             modelBuilder.Entity<Guest>().HasData(
                 new Guest { GuestId = 1, FirstName = "John", LastName = "Doe", Email = "john.doe@example.com" },
                 new Guest { GuestId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane.smith@example.com" }
             );
 
-        //    using (var context = new EventsDbContext())
-        //    {
-        //        var newEvent = new Events { EventName = "New Event", EventDate = DateTime.Now };
-        //        context.AddEvent(newEvent);
 
-        //        var newGuest = new Guest { FirstName = "Alice", LastName = "Johnson", Email = "alice.johnson@example.com" };
-        //        context.AddGuest(newGuest);
-        //}
         }
 
 
@@ -96,37 +89,6 @@ namespace Apex.Events.Data
             optionsBuilder.UseSqlite($"Data Source={DbPath}");
         }
 
-        //Method to Add Data
-        //public void AddEvent(Events newEvent)
-        //{
-        //    this.Events.Add(newEvent);
-        //    this.SaveChanges();
-        //}
-
-        //public void AddGuest(Guest newGuest)
-        //{
-        //    this.Guests.Add(newGuest);
-        //    this.SaveChanges();
-        //}
-
-        //public void AddGuestBooking(GuestBooking newGuestBooking)
-        //{
-        //    this.GuestBookings.Add(newGuestBooking);
-        //    this.SaveChanges();
-        //}
-        //public void AddStaff(Staff newStaff)
-        //{
-        //    this.Staffs.Add(newStaff);
-        //    this.SaveChanges();
-        //}
-
-        //public void AddStaffing(Staffing newStaffing)
-        //{
-        //    this.Staffings.Add(newStaffing);
-        //    this.SaveChanges();
-
-        //}
-
-
+  
     }
 }
