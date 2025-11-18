@@ -3,19 +3,16 @@ using System;
 using Apex.Catering.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Apex.Catering.Data.Migrations
+namespace Apex.Catering.Migrations
 {
     [DbContext(typeof(CateringDbContext))]
-    [Migration("20251106000533_InitialCreate")]
-    partial class InitialCreate
+    partial class CateringDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.20");
@@ -40,6 +37,36 @@ namespace Apex.Catering.Data.Migrations
                     b.HasIndex("MenuId");
 
                     b.ToTable("FoodBookings");
+
+                    b.HasData(
+                        new
+                        {
+                            FoodBookingId = 1,
+                            ClintReferenceId = 1001,
+                            MenuId = 1,
+                            NumberOfGuests = 50
+                        },
+                        new
+                        {
+                            FoodBookingId = 2,
+                            ClintReferenceId = 1002,
+                            MenuId = 2,
+                            NumberOfGuests = 30
+                        },
+                        new
+                        {
+                            FoodBookingId = 3,
+                            ClintReferenceId = 1003,
+                            MenuId = 3,
+                            NumberOfGuests = 20
+                        },
+                        new
+                        {
+                            FoodBookingId = 4,
+                            ClintReferenceId = 1004,
+                            MenuId = 1,
+                            NumberOfGuests = 40
+                        });
                 });
 
             modelBuilder.Entity("Apex.Catering.Data.FoodItem", b =>
@@ -102,6 +129,12 @@ namespace Apex.Catering.Data.Migrations
                             FoodItemId = 7,
                             Description = "Roast Lamb",
                             UnitPrice = 11.00m
+                        },
+                        new
+                        {
+                            FoodItemId = 8,
+                            Description = "Vegetable Lasagna",
+                            UnitPrice = 9.50m
                         });
                 });
 
@@ -118,6 +151,23 @@ namespace Apex.Catering.Data.Migrations
                     b.HasKey("MenuId");
 
                     b.ToTable("Menus");
+
+                    b.HasData(
+                        new
+                        {
+                            MenuId = 1,
+                            MenuName = "Standard Buffet"
+                        },
+                        new
+                        {
+                            MenuId = 2,
+                            MenuName = "Vegetarian Delight"
+                        },
+                        new
+                        {
+                            MenuId = 3,
+                            MenuName = "Seafood Special"
+                        });
                 });
 
             modelBuilder.Entity("Apex.Catering.Data.MenuFoodItem", b =>
@@ -133,6 +183,63 @@ namespace Apex.Catering.Data.Migrations
                     b.HasIndex("FoodItemId");
 
                     b.ToTable("MenuFoodItems");
+
+                    b.HasData(
+                        new
+                        {
+                            MenuId = 1,
+                            FoodItemId = 1
+                        },
+                        new
+                        {
+                            MenuId = 1,
+                            FoodItemId = 2
+                        },
+                        new
+                        {
+                            MenuId = 1,
+                            FoodItemId = 4
+                        },
+                        new
+                        {
+                            MenuId = 1,
+                            FoodItemId = 5
+                        },
+                        new
+                        {
+                            MenuId = 2,
+                            FoodItemId = 3
+                        },
+                        new
+                        {
+                            MenuId = 2,
+                            FoodItemId = 4
+                        },
+                        new
+                        {
+                            MenuId = 2,
+                            FoodItemId = 6
+                        },
+                        new
+                        {
+                            MenuId = 2,
+                            FoodItemId = 8
+                        },
+                        new
+                        {
+                            MenuId = 3,
+                            FoodItemId = 5
+                        },
+                        new
+                        {
+                            MenuId = 3,
+                            FoodItemId = 7
+                        },
+                        new
+                        {
+                            MenuId = 3,
+                            FoodItemId = 4
+                        });
                 });
 
             modelBuilder.Entity("Apex.Catering.Data.FoodBooking", b =>

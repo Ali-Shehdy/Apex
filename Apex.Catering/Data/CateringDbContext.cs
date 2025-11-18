@@ -4,11 +4,10 @@ using System.Runtime.InteropServices.Marshalling;
 
 namespace Apex.Catering.Data
 {
-
+        
 
     public class CateringDbContext : DbContext
     {
-
         // Notes
         // - DbSet defines the database table.
         // - the class name is defined as part of the data model
@@ -23,11 +22,17 @@ namespace Apex.Catering.Data
         private string DbPath { get; set; } = string.Empty;
 
         // Constructor to set-up the database path and name
+        public CateringDbContext(DbContextOptions<CateringDbContext> options)
+            : base(options)
+        {
+        }
+
+        // Optional: keep parameterless for local dev tools if you want
         public CateringDbContext()
         {
-        var folder = Environment.SpecialFolder.MyDocuments;
-        var path = Environment.GetFolderPath(folder);
-        DbPath = System.IO.Path.Join(path, "catering.db");
+            var folder = Environment.SpecialFolder.MyDocuments;
+            var path = Environment.GetFolderPath(folder);
+            DbPath = System.IO.Path.Join(path, "catering.db");
         }
 
         // OnConfiguring to specify that the SQLite database engine will be used
@@ -107,5 +112,6 @@ namespace Apex.Catering.Data
         }
     }
     }
+
 
 

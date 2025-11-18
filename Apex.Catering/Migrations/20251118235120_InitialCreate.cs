@@ -4,7 +4,7 @@
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
-namespace Apex.Catering.Data.Migrations
+namespace Apex.Catering.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -94,7 +94,47 @@ namespace Apex.Catering.Data.Migrations
                     { 4, "Caesar Salad", 6.50m },
                     { 5, "Grilled Salmon", 12.00m },
                     { 6, "Pasta Primavera", 8.00m },
-                    { 7, "Roast Lamb", 11.00m }
+                    { 7, "Roast Lamb", 11.00m },
+                    { 8, "Vegetable Lasagna", 9.50m }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Menus",
+                columns: new[] { "MenuId", "MenuName" },
+                values: new object[,]
+                {
+                    { 1, "Standard Buffet" },
+                    { 2, "Vegetarian Delight" },
+                    { 3, "Seafood Special" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "FoodBookings",
+                columns: new[] { "FoodBookingId", "ClintReferenceId", "MenuId", "NumberOfGuests" },
+                values: new object[,]
+                {
+                    { 1, 1001, 1, 50 },
+                    { 2, 1002, 2, 30 },
+                    { 3, 1003, 3, 20 },
+                    { 4, 1004, 1, 40 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "MenuFoodItems",
+                columns: new[] { "FoodItemId", "MenuId" },
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 2, 1 },
+                    { 4, 1 },
+                    { 5, 1 },
+                    { 3, 2 },
+                    { 4, 2 },
+                    { 6, 2 },
+                    { 8, 2 },
+                    { 4, 3 },
+                    { 5, 3 },
+                    { 7, 3 }
                 });
 
             migrationBuilder.CreateIndex(
