@@ -37,9 +37,11 @@
                 new FoodBooking { FoodBookingId = 5, ClintReferenceId = 1010, NumberOfGuests = 25, MenuId = 2 },
                 };
 
+            
 
             _context.FoodItems.AddRange(foodItems);
             _context.SaveChanges();
+
         }
 }
 }
