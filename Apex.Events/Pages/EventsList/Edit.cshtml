@@ -1,0 +1,45 @@
+﻿@page
+@model Apex.Events.EventsList.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Events</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Events.EventId" />
+            <div class="form-group">
+                <label asp-for="Events.EventName" class="control-label"></label>
+                <input asp-for="Events.EventName" class="form-control" />
+                <span asp-validation-for="Events.EventName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Events.EventDate" class="control-label"></label>
+                <input asp-for="Events.EventDate" class="form-control" />
+                <span asp-validation-for="Events.EventDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Events.ReservationReference" class="control-label"></label>
+                <input asp-for="Events.ReservationReference" class="form-control" />
+                <span asp-validation-for="Events.ReservationReference" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
-//using Apex.Venues.Data;
 
 namespace Apex.Events.Data
 {
     public class EventsDbContext : DbContext
     {
-        //public EventsDbContext(DbContextOptions<EventsDbContext> options) : base(options)
-        //{
-        //}
+        public EventsDbContext(DbContextOptions<EventsDbContext> options)
+            : base(options)
+        {
+        }
 
         public DbSet<Events> Events { get; set; }
         public DbSet<Guest> Guests { get; set; }
@@ -19,20 +19,19 @@ namespace Apex.Events.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Relationship
-
-            // 1 to Many R between Events & GuestBooking
-            modelBuilder.Entity<GuestBooking>()
-                .HasOne(gb => gb.Event)
-                .WithMany(g => g.GuestBookings)
-                .HasForeignKey(gb => gb.GuestId);
-
+            // FIXED: Correct relationship GuestBooking → Event
             modelBuilder.Entity<GuestBooking>()
                 .HasOne(gb => gb.Event)
                 .WithMany(e => e.GuestBookings)
                 .HasForeignKey(gb => gb.EventId);
 
-            // 1 to Many R between Events & Staffings
+            // FIXED: Relationship GuestBooking → Guest
+            modelBuilder.Entity<GuestBooking>()
+                .HasOne(gb => gb.Guest)
+                .WithMany(g => g.GuestBookings)
+                .HasForeignKey(gb => gb.GuestId);
+
+            // Staff → Event
             modelBuilder.Entity<Staffing>()
                 .HasOne(s => s.Event)
                 .WithMany(e => e.Staffings)
@@ -43,52 +42,16 @@ namespace Apex.Events.Data
                 .WithMany(st => st.Staffings)
                 .HasForeignKey(s => s.StaffId);
 
-            //// 1 to 0..1 R between Events & FoodBooking 
-            //modelBuilder.Entity<Events>()
-            //    .HasOne(e => e.FoodBooking)
-            //    .WithOne()
-            //    .HasForeignKey<Events>(e => e.FoodBookingId);
-
-            //// 1 to 0..1 R between Events & Reservation
-            //modelBuilder.Entity<Events>()
-            //    .HasOne<Reservation>()
-            //    .WithOne()
-            //    .HasForeignKey<Events>(e => e.ReservationReference);
-
-            // Seed data
+            // --- SEEDING ---
             modelBuilder.Entity<Events>().HasData(
-     new Events { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1) },
-     new Events { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2) }
- );
-
-            modelBuilder.Entity<Guest>().HasData(
-                new Guest { GuestId = 1, FirstName = "John", LastName = "Doe", Email = "john.doe@example.com" },
-                new Guest { GuestId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane.smith@example.com" }
+                new Events { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1) },
+                new Events { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2) }
             );
 
-
+            modelBuilder.Entity<Guest>().HasData(
+                new Guest { GuestId = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com" },
+                new Guest { GuestId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@example.com" }
+            );
         }
-
-
-
-
-        private string DbPath { get; set; } = string.Empty;
-
-        // Constructor to set-up the database path and name
-        public EventsDbContext()
-        {
-            var folder = Environment.SpecialFolder.MyDocuments;
-            var path = Environment.GetFolderPath(folder);
-            DbPath = System.IO.Path.Join(path, "events.db");
-        }
-
-        // OnConfiguring to specify that the SQLite database engine will be used
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlite($"Data Source={DbPath}");
-        }
-
-  
     }
 }

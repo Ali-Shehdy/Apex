@@ -1,4 +1,4 @@
-using Apex.Catering.Data;
+using Apex.Events.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,31 +13,38 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add DbContext with SQLite
-builder.Services.AddDbContext<CateringDbContext>(options =>
-    options.UseSqlite($"Data Source={System.IO.Path.Combine(
+
+builder.Services.AddDbContext<EventsDbContext>(options =>
+{
+    var dbPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-        "catering.db")}")
-);
+        "events.db");
+
+    options.UseSqlite($"Data Source={dbPath}");
+});
+builder.Services.AddRazorPages();
+// Add DbContext with SQLite
+
+builder.Services.AddScoped<DbTestDataInitializer>();
 
 var app = builder.Build();
 
 // Ensure database is created
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<CateringDbContext>();
+    var db = scope.ServiceProvider.GetRequiredService<EventsDbContext>();
     db.Database.EnsureCreated(); // Creates the SQLite file if missing
 }
 
 // Developer Exception Page
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
-else
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
+}
+else
+{
+    AddTestData(app);
 }
 
 app.UseHttpsRedirection();
@@ -50,13 +57,14 @@ app.MapRazorPages();
 
 // Map API controllers
 app.MapControllers();
-
-// Swagger middleware
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Apex Events API V1");
-    c.RoutePrefix = "swagger"; // Access via /swagger
-});
-
 app.Run();
+
+void AddTestData(IHost app)
+{
+    using (var scope = app.Services.CreateScope())
+    {
+       var services = scope.ServiceProvider;
+        var initializer = services.GetRequiredService<DbTestDataInitializer>();
+        initializer.Initialize();
+    }
+}
