@@ -228,17 +228,17 @@ namespace Apex.Catering.Migrations
                         new
                         {
                             MenuId = 3,
+                            FoodItemId = 4
+                        },
+                        new
+                        {
+                            MenuId = 3,
                             FoodItemId = 5
                         },
                         new
                         {
                             MenuId = 3,
                             FoodItemId = 7
-                        },
-                        new
-                        {
-                            MenuId = 3,
-                            FoodItemId = 4
                         });
                 });
 

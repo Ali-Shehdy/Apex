@@ -41,6 +41,34 @@ namespace Apex.Catering.Controllers
             return foodBooking;
         }
 
+        [HttpPost]
+        public async Task<ActionResult<FoodBooking>> PostFoodBooking(FoodBookingDto foodBooking)
+        {
+            bool menuExist = this.MenuExists(foodBooking);
+            if (menuExist && foodBooking.clinetReferenceId != null && foodBooking.numberOfGuests > 0)
+            {
+                if (_context.FoodBookings.Any(m => m.ClintReferenceId == foodBooking.clinetReferenceId && m.MenuId == foodBooking.menuId))
+                {
+                    return Conflict(new { message = $"The Clint with {foodBooking.clinetReferenceId}  has an existing booking for menu {foodBooking.menuId}." });
+                }
+                FoodBooking newBooking = new FoodBooking
+                {
+                    ClintReferenceId = (int)foodBooking.clinetReferenceId,
+                    MenuId = foodBooking.menuId,
+                    NumberOfGuests = foodBooking.numberOfGuests,
+                };
+                _context.FoodBookings.Add(newBooking);
+                await _context.SaveChangesAsync();
+                return CreatedAtAction("GetFoodBooking", new { id = newBooking.FoodBookingId });
+            }
+            else
+            {
+                return BadRequest();
+            }
+
+        }
+
+
         // PUT: api/FoodBookings/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -102,6 +130,14 @@ namespace Apex.Catering.Controllers
         private bool FoodBookingExists(int id)
         {
             return _context.FoodBookings.Any(e => e.FoodBookingId == id);
+        }
+
+        // Add this private method to the FoodBookingsController class to fix CS1061
+        private bool MenuExists(FoodBookingDto foodBooking)
+        {
+            // Replace with actual logic to check if the menu exists.
+            // For example, if foodBooking.menuId is the menu identifier:
+            return _context.Menus.Any(m => m.MenuId == foodBooking.menuId);
         }
     }
 }
