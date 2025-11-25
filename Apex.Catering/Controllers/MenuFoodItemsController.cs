@@ -1,121 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Apex.Catering.Data;
+using Apex.Catering.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Apex.Catering.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Apex.Catering.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MenuFoodItemsController : ControllerBase
+    public class MenuFoodItemController : ControllerBase
     {
         private readonly CateringDbContext _context;
 
-        public MenuFoodItemsController(CateringDbContext context)
+        public MenuFoodItemController(CateringDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/MenuFoodItems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MenuFoodItem>>> GetMenuFoodItems()
+        public async Task<ActionResult<IEnumerable<MenuFoodItemDto>>> GetMenuFoodItems()
         {
-            return await _context.MenuFoodItems.ToListAsync();
-        }
-
-        // GET: api/MenuFoodItems/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<MenuFoodItem>> GetMenuFoodItem(int id)
-        {
-            var menuFoodItem = await _context.MenuFoodItems.FindAsync(id);
-
-            if (menuFoodItem == null)
-            {
-                return NotFound();
-            }
-
-            return menuFoodItem;
-        }
-
-        // PUT: api/MenuFoodItems/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMenuFoodItem(int id, MenuFoodItem menuFoodItem)
-        {
-            if (id != menuFoodItem.MenuId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(menuFoodItem).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MenuFoodItemExists(id))
+            return await _context.MenuFoodItems
+                .Select(mf => new MenuFoodItemDto
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+                    MenuId = mf.MenuId,
+                    FoodItemId = mf.FoodItemId
+                })
+                .ToListAsync();
         }
 
-        // POST: api/MenuFoodItems
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpGet("{menuId}/{foodItemId}")]
+        public async Task<ActionResult<MenuFoodItemDto>> GetMenuFoodItem(int menuId, int foodItemId)
+        {
+            var mf = await _context.MenuFoodItems.FindAsync(menuId, foodItemId);
+            if (mf == null) return NotFound();
+
+            return new MenuFoodItemDto { MenuId = mf.MenuId, FoodItemId = mf.FoodItemId };
+        }
+
         [HttpPost]
-        public async Task<ActionResult<MenuFoodItem>> PostMenuFoodItem(MenuFoodItem menuFoodItem)
+        public async Task<ActionResult<MenuFoodItemDto>> PostMenuFoodItem(MenuFoodItemDto dto)
         {
-            _context.MenuFoodItems.Add(menuFoodItem);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (MenuFoodItemExists(menuFoodItem.MenuId))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CreatedAtAction("GetMenuFoodItem", new { id = menuFoodItem.MenuId }, menuFoodItem);
-        }
-
-        // DELETE: api/MenuFoodItems/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMenuFoodItem(int id)
-        {
-            var menuFoodItem = await _context.MenuFoodItems.FindAsync(id);
-            if (menuFoodItem == null)
-            {
-                return NotFound();
-            }
-
-            _context.MenuFoodItems.Remove(menuFoodItem);
+            var mf = new MenuFoodItem { MenuId = dto.MenuId, FoodItemId = dto.FoodItemId };
+            _context.MenuFoodItems.Add(mf);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return CreatedAtAction(nameof(GetMenuFoodItem), new { menuId = dto.MenuId, foodItemId = dto.FoodItemId }, dto);
         }
 
-        private bool MenuFoodItemExists(int id)
+        [HttpDelete("{menuId}/{foodItemId}")]
+        public async Task<IActionResult> DeleteMenuFoodItem(int menuId, int foodItemId)
         {
-            return _context.MenuFoodItems.Any(e => e.MenuId == id);
+            var mf = await _context.MenuFoodItems.FindAsync(menuId, foodItemId);
+            if (mf == null) return NotFound();
+
+            _context.MenuFoodItems.Remove(mf);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
+//         public async Task<IActionResult> DeleteMenu(int id)
+

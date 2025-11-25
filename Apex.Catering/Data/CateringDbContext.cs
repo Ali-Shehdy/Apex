@@ -4,15 +4,17 @@ namespace Apex.Catering.Data
 {
     public class CateringDbContext : DbContext
     {
-        public CateringDbContext(DbContextOptions<CateringDbContext> options)
-            : base(options)
-        {
-        }
+       
 
         public DbSet<FoodItem> FoodItems { get; set; } = null!;
         public DbSet<Menu> Menus { get; set; } = null!;
         public DbSet<MenuFoodItem> MenuFoodItems { get; set; } = null!;
         public DbSet<FoodBooking> FoodBookings { get; set; } = null!;
+
+        public CateringDbContext(DbContextOptions<CateringDbContext> options)
+          : base(options)
+        {
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

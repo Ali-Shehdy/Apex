@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Apex.Catering.Data;
+using Apex.Catering.Dto;
 
 namespace Apex.Catering.Controllers
 {
@@ -20,124 +21,78 @@ namespace Apex.Catering.Controllers
             _context = context;
         }
 
-        // GET: api/FoodBookings
+        // GET all bookings
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<FoodBooking>>> GetFoodBookings()
+        public async Task<ActionResult<IEnumerable<FoodBookingDto>>> GetFoodBookings()
         {
-            return await _context.FoodBookings.ToListAsync();
+            return await _context.FoodBookings
+                .Select(f => new FoodBookingDto
+                {
+                    ClintReferenceId = f.ClintReferenceId,
+                    MenuId = f.MenuId ?? 0,
+                    NumberOfGuests = f.NumberOfGuests ?? 0
+                })
+                .ToListAsync();
         }
 
-        // GET: api/FoodBookings/5
+        // GET single booking
         [HttpGet("{id}")]
-        public async Task<ActionResult<FoodBooking>> GetFoodBooking(int id)
+        public async Task<ActionResult<FoodBookingDto>> GetFoodBooking(int id)
         {
-            var foodBooking = await _context.FoodBookings.FindAsync(id);
+            var f = await _context.FoodBookings.FindAsync(id);
+            if (f == null) return NotFound();
 
-            if (foodBooking == null)
+            return new FoodBookingDto
             {
-                return NotFound();
-            }
-
-            return foodBooking;
+                ClintReferenceId = f.ClintReferenceId,
+                MenuId = f.MenuId ?? 0,
+                NumberOfGuests = f.NumberOfGuests ?? 0
+            };
         }
 
+        // POST new booking
         [HttpPost]
-        public async Task<ActionResult<FoodBooking>> PostFoodBooking(FoodBookingDto foodBooking)
+        public async Task<ActionResult<FoodBookingDto>> PostFoodBooking(FoodBookingDto dto)
         {
-            bool menuExist = this.MenuExists(foodBooking);
-            if (menuExist && foodBooking.clinetReferenceId != null && foodBooking.numberOfGuests > 0)
+            var booking = new FoodBooking
             {
-                if (_context.FoodBookings.Any(m => m.ClintReferenceId == foodBooking.clinetReferenceId && m.MenuId == foodBooking.menuId))
-                {
-                    return Conflict(new { message = $"The Clint with {foodBooking.clinetReferenceId}  has an existing booking for menu {foodBooking.menuId}." });
-                }
-                FoodBooking newBooking = new FoodBooking
-                {
-                    ClintReferenceId = (int)foodBooking.clinetReferenceId,
-                    MenuId = foodBooking.menuId,
-                    NumberOfGuests = foodBooking.numberOfGuests,
-                };
-                _context.FoodBookings.Add(newBooking);
-                await _context.SaveChangesAsync();
-                return CreatedAtAction("GetFoodBooking", new { id = newBooking.FoodBookingId });
-            }
-            else
-            {
-                return BadRequest();
-            }
+                ClintReferenceId = dto.ClintReferenceId,
+                MenuId = dto.MenuId,
+                NumberOfGuests = dto.NumberOfGuests
+            };
 
+            _context.FoodBookings.Add(booking);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetFoodBooking), new { id = booking.FoodBookingId }, dto);
         }
 
-
-        // PUT: api/FoodBookings/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // PUT update booking
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFoodBooking(int id, FoodBooking foodBooking)
+        public async Task<IActionResult> PutFoodBooking(int id, FoodBookingDto dto)
         {
-            if (id != foodBooking.FoodBookingId)
-            {
-                return BadRequest();
-            }
+            var booking = await _context.FoodBookings.FindAsync(id);
+            if (booking == null) return NotFound();
 
-            _context.Entry(foodBooking).State = EntityState.Modified;
+            booking.ClintReferenceId = dto.ClintReferenceId;
+            booking.MenuId = dto.MenuId;
+            booking.NumberOfGuests = dto.NumberOfGuests;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!FoodBookingExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _context.SaveChangesAsync();
             return NoContent();
         }
 
-        // POST: api/FoodBookings
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<FoodBooking>> PostFoodBooking(FoodBooking foodBooking)
-        {
-            _context.FoodBookings.Add(foodBooking);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetFoodBooking", new { id = foodBooking.FoodBookingId }, foodBooking);
-        }
-
-        // DELETE: api/FoodBookings/5
+        // DELETE booking
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFoodBooking(int id)
         {
-            var foodBooking = await _context.FoodBookings.FindAsync(id);
-            if (foodBooking == null)
-            {
-                return NotFound();
-            }
+            var booking = await _context.FoodBookings.FindAsync(id);
+            if (booking == null) return NotFound();
 
-            _context.FoodBookings.Remove(foodBooking);
+            _context.FoodBookings.Remove(booking);
             await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        private bool FoodBookingExists(int id)
-        {
-            return _context.FoodBookings.Any(e => e.FoodBookingId == id);
-        }
-
-        // Add this private method to the FoodBookingsController class to fix CS1061
-        private bool MenuExists(FoodBookingDto foodBooking)
-        {
-            // Replace with actual logic to check if the menu exists.
-            // For example, if foodBooking.menuId is the menu identifier:
-            return _context.Menus.Any(m => m.MenuId == foodBooking.menuId);
         }
     }
 }
+//         public async Task<IActionResult> DeleteMenu(int id)

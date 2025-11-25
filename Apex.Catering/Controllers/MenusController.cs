@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Apex.Catering.Data;
+using Apex.Catering.Dto;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Apex.Catering.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Apex.Catering.Controllers
 {
@@ -20,88 +21,58 @@ namespace Apex.Catering.Controllers
             _context = context;
         }
 
-        // GET: api/Menus
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Menu>>> GetMenus()
+        public async Task<ActionResult<IEnumerable<MenuDto>>> GetMenus()
         {
-            return await _context.Menus.ToListAsync();
+            return await _context.Menus
+                .Select(m => new MenuDto
+                {
+                    MenuId = m.MenuId,
+                    MenuName = m.MenuName ?? ""
+                })
+                .ToListAsync();
         }
 
-        // GET: api/Menus/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Menu>> GetMenu(int id)
+        public async Task<ActionResult<MenuDto>> GetMenu(int id)
         {
-            var menu = await _context.Menus.FindAsync(id);
-
-            if (menu == null)
-            {
-                return NotFound();
-            }
-
-            return menu;
+            var m = await _context.Menus.FindAsync(id);
+            if (m == null) return NotFound();
+            return new MenuDto { MenuId = m.MenuId, MenuName = m.MenuName ?? "" };
         }
 
-        // PUT: api/Menus/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMenu(int id, Menu menu)
-        {
-            if (id != menu.MenuId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(menu).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!MenuExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Menus
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Menu>> PostMenu(Menu menu)
+        public async Task<ActionResult<MenuDto>> PostMenu(MenuDto dto)
         {
+            var menu = new Menu { MenuId = 0, MenuName = dto.MenuName };
             _context.Menus.Add(menu);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMenu", new { id = menu.MenuId }, menu);
+            dto.MenuId = menu.MenuId;
+            return CreatedAtAction(nameof(GetMenu), new { id = menu.MenuId }, dto);
         }
 
-        // DELETE: api/Menus/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutMenu(int id, MenuDto dto)
+        {
+            var menu = await _context.Menus.FindAsync(id);
+            if (menu == null) return NotFound();
+
+            menu.MenuName = dto.MenuName;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMenu(int id)
         {
             var menu = await _context.Menus.FindAsync(id);
-            if (menu == null)
-            {
-                return NotFound();
-            }
+            if (menu == null) return NotFound();
 
             _context.Menus.Remove(menu);
             await _context.SaveChangesAsync();
-
             return NoContent();
-        }
-
-        private bool MenuExists(int id)
-        {
-            return _context.Menus.Any(e => e.MenuId == id);
         }
     }
 }
+        
