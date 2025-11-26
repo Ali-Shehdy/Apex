@@ -18,7 +18,7 @@ namespace Apex.Events.EventsList
             _context = context;
         }
 
-        public IList<Apex.Events.Data.Events> Events { get; set; } = default!;
+        public IList<Apex.Events.Data.Event> Events { get; set; } = default!;
 
         public async Task OnGetAsync()
         {

@@ -1,45 +1,46 @@
-﻿@page
+﻿
+@page
 @model Apex.Events.EventsList.EditModel
+@using Apex.Events.Data
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Event";
 }
 
-<h1>Edit</h1>
+<h1>Edit Event</h1>
 
-<h4>Events</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Events.EventId" />
-            <div class="form-group">
-                <label asp-for="Events.EventName" class="control-label"></label>
-                <input asp-for="Events.EventName" class="form-control" />
-                <span asp-validation-for="Events.EventName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Events.EventDate" class="control-label"></label>
-                <input asp-for="Events.EventDate" class="form-control" />
-                <span asp-validation-for="Events.EventDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Events.ReservationReference" class="control-label"></label>
-                <input asp-for="Events.ReservationReference" class="form-control" />
-                <span asp-validation-for="Events.ReservationReference" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<form method="post">
+    <input type="hidden" asp-for="Event.EventId" />
+
+    <div class="form-group">
+        <label asp-for="Event.EventName" class="control-label"></label>
+        <input asp-for="Event.EventName" class="form-control" />
+        <span asp-validation-for="Event.EventName" class="text-danger"></span>
     </div>
-</div>
 
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
+    <div class="form-group">
+        <label asp-for="Event.EventDate" class="control-label"></label>
+        <input asp-for="Event.EventDate" class="form-control" type="date" />
+        <span asp-validation-for="Event.EventDate" class="text-danger"></span>
+    </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    <div class="form-group">
+        <label asp-for="Event.EventType" class="control-label"></label>
+        <select asp-for="Event.EventType"
+                class="form-control"
+                asp-items="Html.GetEnumSelectList<EventType>()">
+        </select>
+        <span asp-validation-for="Event.EventType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Event.ReservationReference" class="control-label"></label>
+        <input asp-for="Event.ReservationReference" class="form-control" />
+        <span asp-validation-for="Event.ReservationReference" class="text-danger"></span>
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+</form>

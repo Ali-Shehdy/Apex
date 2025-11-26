@@ -1,44 +1,31 @@
 ﻿@page
 @model Apex.Events.EventsList.CreateModel
+@using Apex.Events.Data
 
-@{
-    ViewData["Title"] = "Create";
-}
-
-<h1>Create</h1>
-
-<h4>Events</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Events.EventName" class="control-label"></label>
-                <input asp-for="Events.EventName" class="form-control" />
-                <span asp-validation-for="Events.EventName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Events.EventDate" class="control-label"></label>
-                <input asp-for="Events.EventDate" class="form-control" />
-                <span asp-validation-for="Events.EventDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Events.ReservationReference" class="control-label"></label>
-                <input asp-for="Events.ReservationReference" class="form-control" />
-                <span asp-validation-for="Events.ReservationReference" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Event.EventName"></label>
+        <input asp-for="Event.EventName" class="form-control" />
     </div>
-</div>
 
-<div>
-    <a asp-page="Index">Back to List</a>
-</div>
+    <div class="form-group">
+        <label asp-for="Event.EventDate"></label>
+        <input asp-for="Event.EventDate" class="form-control" type="date" />
+    </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    <div class="form-group">
+        <label asp-for="Event.EventType"></label>
+        <select asp-for="Event.EventType"
+                class="form-control"
+                asp-items="Html.GetEnumSelectList<EventType>()">
+            <option value="">-- Select Event Type --</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Event.ReservationReference"></label>
+        <input asp-for="Event.ReservationReference" class="form-control" />
+    </div>
+
+    <button type="submit">Create</button>
+</form>

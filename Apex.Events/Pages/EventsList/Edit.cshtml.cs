@@ -20,7 +20,7 @@ namespace Apex.Events.EventsList
         }
 
         [BindProperty]
-        public Apex.Events.Data.Events Events { get; set; } = default!;
+        public Apex.Events.Data.Event Event { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -34,7 +34,7 @@ namespace Apex.Events.EventsList
             {
                 return NotFound();
             }
-            Events = events;
+            Event = events;
             return Page();
         }
 
@@ -47,7 +47,7 @@ namespace Apex.Events.EventsList
                 return Page();
             }
 
-            _context.Attach(Events).State = EntityState.Modified;
+            _context.Attach(Event).State = EntityState.Modified;
 
             try
             {
@@ -55,7 +55,7 @@ namespace Apex.Events.EventsList
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EventsExists(Events.EventId))
+                if (!EventsExists(Event.EventId))
                 {
                     return NotFound();
                 }

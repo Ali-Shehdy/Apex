@@ -4,12 +4,13 @@ namespace Apex.Events.Data
 {
     public class EventsDbContext : DbContext
     {
+       
         public EventsDbContext(DbContextOptions<EventsDbContext> options)
             : base(options)
         {
         }
 
-        public DbSet<Events> Events { get; set; }
+        public DbSet<Event> Events { get; set; }
         public DbSet<Guest> Guests { get; set; }
         public DbSet<GuestBooking> GuestBookings { get; set; }
         public DbSet<Staff> Staffs { get; set; }
@@ -43,9 +44,9 @@ namespace Apex.Events.Data
                 .HasForeignKey(s => s.StaffId);
 
             // --- SEEDING ---
-            modelBuilder.Entity<Events>().HasData(
-                new Events { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1) },
-                new Events { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2) }
+            modelBuilder.Entity<Event>().HasData(
+                new Event { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1), EventType = EventType.Conference },
+                new Event { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2), EventType = EventType.Wedding }
             );
 
             modelBuilder.Entity<Guest>().HasData(

@@ -18,7 +18,7 @@ namespace Apex.Events.EventsList
             _context = context;
         }
 
-        public Apex.Events.Data.Events Events { get; set; } = default!;
+        public Event Event { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -34,7 +34,7 @@ namespace Apex.Events.EventsList
             }
             else
             {
-                Events = events;
+                Event = events;
             }
             return Page();
         }

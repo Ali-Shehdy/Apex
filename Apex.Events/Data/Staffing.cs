@@ -8,7 +8,7 @@
 
 
         public Staff Staff { get; set; } = null!; // Relation property to Staff
-        public Events Event { get; set; } = null!; // Relation property to Event
+        public Event Event { get; set; } = null!; // Relation property to Event
 
     }
 }

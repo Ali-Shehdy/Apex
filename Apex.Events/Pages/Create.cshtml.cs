@@ -12,7 +12,7 @@ namespace Apex.Events.Pages
         }
 
         [BindProperty]
-        public Apex.Events.Data.Events EventItem { get; set; } = new Apex.Events.Data.Events();
+        public Apex.Events.Data.Event EventItem { get; set; } = new Apex.Events.Data.Event();
 
         public IActionResult OnGet()
         {

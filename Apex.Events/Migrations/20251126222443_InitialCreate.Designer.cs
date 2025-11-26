@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Apex.Events.Migrations
 {
     [DbContext(typeof(EventsDbContext))]
-    [Migration("20251117230159_SeedFix")]
-    partial class SeedFix
+    [Migration("20251126222443_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,7 +20,7 @@ namespace Apex.Events.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.20");
 
-            modelBuilder.Entity("Apex.Events.Data.Events", b =>
+            modelBuilder.Entity("Apex.Events.Data.Event", b =>
                 {
                     b.Property<int>("EventId")
                         .ValueGeneratedOnAdd()
@@ -32,6 +32,9 @@ namespace Apex.Events.Migrations
                     b.Property<string>("EventName")
                         .IsRequired()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("ReservationReference")
                         .HasColumnType("TEXT");
@@ -45,13 +48,15 @@ namespace Apex.Events.Migrations
                         {
                             EventId = 1,
                             EventDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EventName = "Sample Event 1"
+                            EventName = "Sample Event 1",
+                            EventType = 0
                         },
                         new
                         {
                             EventId = 2,
                             EventDate = new DateTime(2024, 1, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EventName = "Sample Event 2"
+                            EventName = "Sample Event 2",
+                            EventType = 1
                         });
                 });
 
@@ -81,14 +86,14 @@ namespace Apex.Events.Migrations
                         new
                         {
                             GuestId = 1,
-                            Email = "john.doe@example.com",
+                            Email = "john@example.com",
                             FirstName = "John",
                             LastName = "Doe"
                         },
                         new
                         {
                             GuestId = 2,
-                            Email = "jane.smith@example.com",
+                            Email = "jane@example.com",
                             FirstName = "Jane",
                             LastName = "Smith"
                         });
@@ -164,7 +169,7 @@ namespace Apex.Events.Migrations
 
             modelBuilder.Entity("Apex.Events.Data.GuestBooking", b =>
                 {
-                    b.HasOne("Apex.Events.Data.Events", "Event")
+                    b.HasOne("Apex.Events.Data.Event", "Event")
                         .WithMany("GuestBookings")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -183,7 +188,7 @@ namespace Apex.Events.Migrations
 
             modelBuilder.Entity("Apex.Events.Data.Staffing", b =>
                 {
-                    b.HasOne("Apex.Events.Data.Events", "Event")
+                    b.HasOne("Apex.Events.Data.Event", "Event")
                         .WithMany("Staffings")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -200,7 +205,7 @@ namespace Apex.Events.Migrations
                     b.Navigation("Staff");
                 });
 
-            modelBuilder.Entity("Apex.Events.Data.Events", b =>
+            modelBuilder.Entity("Apex.Events.Data.Event", b =>
                 {
                     b.Navigation("GuestBookings");
 

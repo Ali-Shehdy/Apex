@@ -24,7 +24,7 @@ namespace Apex.Events.EventsList
         }
 
         [BindProperty]
-        public Apex.Events.Data.Events Events { get; set; } = default!;
+        public Apex.Events.Data.Event Event { get; set; } = default!;
 
         // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
@@ -34,7 +34,7 @@ namespace Apex.Events.EventsList
                 return Page();
             }
 
-            _context.Events.Add(Events);
+            _context.Events.Add(Event);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

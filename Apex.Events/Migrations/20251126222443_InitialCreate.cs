@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Apex.Events.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedFix : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,6 +21,7 @@ namespace Apex.Events.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     EventName = table.Column<string>(type: "TEXT", nullable: false),
                     EventDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    EventType = table.Column<int>(type: "INTEGER", nullable: false),
                     ReservationReference = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -113,11 +114,11 @@ namespace Apex.Events.Migrations
 
             migrationBuilder.InsertData(
                 table: "Events",
-                columns: new[] { "EventId", "EventDate", "EventName", "ReservationReference" },
+                columns: new[] { "EventId", "EventDate", "EventName", "EventType", "ReservationReference" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sample Event 1", null },
-                    { 2, new DateTime(2024, 1, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sample Event 2", null }
+                    { 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sample Event 1", 0, null },
+                    { 2, new DateTime(2024, 1, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sample Event 2", 1, null }
                 });
 
             migrationBuilder.InsertData(
@@ -125,8 +126,8 @@ namespace Apex.Events.Migrations
                 columns: new[] { "GuestId", "Email", "FirstName", "LastName" },
                 values: new object[,]
                 {
-                    { 1, "john.doe@example.com", "John", "Doe" },
-                    { 2, "jane.smith@example.com", "Jane", "Smith" }
+                    { 1, "john@example.com", "John", "Doe" },
+                    { 2, "jane@example.com", "Jane", "Smith" }
                 });
 
             migrationBuilder.CreateIndex(

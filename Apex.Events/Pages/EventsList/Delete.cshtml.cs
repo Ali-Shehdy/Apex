@@ -19,7 +19,7 @@ namespace Apex.Events.EventsList
         }
 
         [BindProperty]
-        public Apex.Events.Data.Events Events { get; set; } = default!; // Fully qualify Event
+        public Event Event { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -36,7 +36,7 @@ namespace Apex.Events.EventsList
             }
             else
             {
-                Events = events;
+                Event = events;
             }
             return Page();
         }
@@ -51,8 +51,8 @@ namespace Apex.Events.EventsList
             var events = await _context.Events.FindAsync(id);
             if (events != null)
             {
-                Events = events;
-                _context.Events.Remove(Events);
+                Event = events;
+                _context.Events.Remove(Event);
                 await _context.SaveChangesAsync();
             }
 

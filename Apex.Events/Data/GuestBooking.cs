@@ -11,6 +11,6 @@
         // Navigation property
         public Guest Guest { get; set; } = null!; // Relation property to Guest
         public int EventId { get; set; } // Foreign key to Event
-        public Events Event { get; set; } = null!; // Relation property to Event
+        public Event Event { get; set; } = null!; // Relation property to Event
     }
 }
