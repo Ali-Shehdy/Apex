@@ -53,6 +53,11 @@ namespace Apex.Events.Data
                 new Guest { GuestId = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com" },
                 new Guest { GuestId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@example.com" }
             );
+
+            modelBuilder.Entity<GuestBooking>().HasData(
+                new GuestBooking { GuestBookingId = 1, BookingDate = new DateTime(2024, 5, 1), GuestId = 1, EventId = 1 },
+                new GuestBooking { GuestBookingId = 2, BookingDate = new DateTime(2024, 5, 2), GuestId = 2, EventId = 2 }
+            );
         }
     }
 }
