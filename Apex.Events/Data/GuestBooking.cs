@@ -8,9 +8,9 @@
         public int EventId { get; set; } // Foreign key to Event
 
         // Navigation property to Guest
-        public virtual Guest Guest { get; set; }
-            
+        public virtual Guest Guest { get; set; } = null!;
+
         // Navigation property to Event
-        public virtual Event Event { get; set; }
+        public virtual Event Event { get; set; } = null!;
     }
 }
