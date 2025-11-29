@@ -44,20 +44,15 @@ namespace Apex.Events.Data
                 .HasForeignKey(s => s.StaffId);
 
             // --- SEEDING ---
-            modelBuilder.Entity<Event>().HasData(
-                new Event { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1), EventType = EventType.Conference },
-                new Event { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2), EventType = EventType.Wedding }
-            );
+            //modelBuilder.Entity<Event>().HasData(
+            //    new Event { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1), EventType = EventType.Conference },
+            //    new Event { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2), EventType = EventType.Wedding }
+            //);
 
-            modelBuilder.Entity<Guest>().HasData(
-                new Guest { GuestId = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com" },
-                new Guest { GuestId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@example.com" }
-            );
-
-            modelBuilder.Entity<GuestBooking>().HasData(
-                new GuestBooking { GuestBookingId = 1, BookingDate = new DateTime(2024, 5, 1), GuestId = 1, EventId = 1 },
-                new GuestBooking { GuestBookingId = 2, BookingDate = new DateTime(2024, 5, 2), GuestId = 2, EventId = 2 }
-            );
+            //modelBuilder.Entity<Guest>().HasData(
+            //    new Guest { GuestId = 1, FirstName = "John", LastName = "Doe", Email = "john@example.com" },
+            //    new Guest { GuestId = 2, FirstName = "Jane", LastName = "Smith", Email = "jane@example.com" }
+            //);
         }
     }
 }

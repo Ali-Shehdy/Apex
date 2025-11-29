@@ -1,0 +1,19 @@
+﻿@page
+@model Apex.Events.Pages.GuestBookings.DetailsModel
+
+<h2 class="mb-4">Booking Details</h2>
+
+<div class="card shadow-sm p-4">
+    <dl class="row">
+        <dt class="col-sm-3">Guest</dt>
+        <dd class="col-sm-9">@Model.GuestBooking.Guest.FirstName @Model.GuestBooking.Guest.LastName</dd>
+
+        <dt class="col-sm-3">Event</dt>
+        <dd class="col-sm-9">@Model.GuestBooking.Event.EventName</dd>
+
+        <dt class="col-sm-3">Booking Date</dt>
+        <dd class="col-sm-9">@Model.GuestBooking.BookingDate.ToShortDateString()</dd>
+    </dl>
+
+    <a asp-page="Index" class="btn btn-secondary mt-3">Back</a>
+</div>
