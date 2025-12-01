@@ -36,13 +36,13 @@ namespace Apex.Events.Pages.GuestBookings
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Validate
-            if (!ModelState.IsValid)
-            {
-                GuestList = new SelectList(_context.Guests, "GuestId", "FirstName");
-                EventList = new SelectList(_context.Events, "EventId", "EventName");
-                return Page();
-            }
+           // // Validate
+           // //if (!ModelState.IsValid)
+           // //{
+           //     GuestList = new SelectList(_context.Guests, "GuestId", "FirstName");
+           //     EventList = new SelectList(_context.Events, "EventId", "EventName");
+           //     return Page();
+           //// }
 
             _context.GuestBookings.Add(GuestBooking);
             await _context.SaveChangesAsync();
