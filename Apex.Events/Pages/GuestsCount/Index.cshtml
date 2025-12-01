@@ -1,0 +1,30 @@
+﻿@page
+@model Apex.Events.Pages.GuestsCount.IndexModel
+
+<h2>Events - Guests Count</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Event Name</th>
+            <th>Date</th>
+            <th>Guests</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ev in Model.EventList)
+        {
+            <tr>
+                <td>
+                    <a asp-page="Details" asp-route-id="@ev.EventId">
+                        @ev.EventName
+                    </a>
+                </td>
+                <td>@ev.EventDate.ToShortDateString()</td>
+                <td>
+                    <a asp-page="Details" asp-route-id="@ev.EventId">View Count</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

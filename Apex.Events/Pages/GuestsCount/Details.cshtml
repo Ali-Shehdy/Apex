@@ -1,0 +1,10 @@
+﻿@page "{id:int}"
+@model Apex.Events.Pages.GuestsCount.DetailsModel
+
+<h2>Guests Count for @Model.Event.EventName</h2>
+
+<p><strong>Event Date:</strong> @Model.Event.EventDate.ToShortDateString()</p>
+
+<h3>Total Guests: @Model.GuestCount</h3>
+
+<a class="btn btn-secondary" asp-page="Index">Back to Events</a>
