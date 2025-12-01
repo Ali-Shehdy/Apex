@@ -1,30 +1,55 @@
 ﻿@page
 @model Apex.Events.Pages.GuestsCount.IndexModel
 
-<h2>Events - Guests Count</h2>
+<div class="container mt-4">
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Event Name</th>
-            <th>Date</th>
-            <th>Guests</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var ev in Model.EventList)
-        {
-            <tr>
-                <td>
-                    <a asp-page="Details" asp-route-id="@ev.EventId">
-                        @ev.EventName
-                    </a>
-                </td>
-                <td>@ev.EventDate.ToShortDateString()</td>
-                <td>
-                    <a asp-page="Details" asp-route-id="@ev.EventId">View Count</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    <div class="card shadow-lg border-0">
+        <div class="card-body">
+
+            <h2 class="text-primary mb-4">Event Guest Overview</h2>
+
+            <p class="text-muted">
+                Below is a list of all events with their total guest bookings.
+            </p>
+
+            <table class="table table-hover table-bordered mt-4 shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Event Name</th>
+                        <th>Date</th>
+                        <th>Total Guests</th>
+                        <th style="width: 160px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int index = 1;
+
+                        foreach (var ev in Model.EventList)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td class="fw-bold">@ev.EventName</td>
+                                <td>@ev.EventDate.ToShortDateString()</td>
+                                <td>
+                                    <span class="badge bg-info text-dark fs-6">
+                                        @ev.GuestBookings.Count
+                                    </span>
+                                </td>
+                                <td>
+                                    <a class="btn btn-primary btn-sm" asp-page="Details" asp-route-id="@ev.EventId">
+                                        View Details
+                                    </a>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>

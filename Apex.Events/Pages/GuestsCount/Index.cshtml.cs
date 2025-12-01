@@ -1,8 +1,8 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Apex.Events.Data;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Apex.Events.Pages.GuestsCount
 {
@@ -19,7 +19,9 @@ namespace Apex.Events.Pages.GuestsCount
 
         public async Task OnGetAsync()
         {
-            EventList = await _context.Events.ToListAsync();
+            EventList = await _context.Events
+                .Include(e => e.GuestBookings)
+                .ToListAsync();
         }
     }
 }

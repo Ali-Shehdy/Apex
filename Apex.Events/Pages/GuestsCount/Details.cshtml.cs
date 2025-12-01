@@ -22,6 +22,7 @@ namespace Apex.Events.Pages.GuestsCount
         {
             Event = await _context.Events
                 .Include(e => e.GuestBookings)
+                    .ThenInclude(gb => gb.Guest)
                 .FirstOrDefaultAsync(e => e.EventId == id);
 
             if (Event == null)
