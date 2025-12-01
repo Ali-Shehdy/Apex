@@ -19,23 +19,25 @@ namespace Apex.Events.Pages.GuestsList
         }
 
         public Guest Guest { get; set; } = default!;
+        public List<GuestBooking> GuestBookings { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var guest = await _context.Guests.FirstOrDefaultAsync(m => m.GuestId == id);
-            if (guest == null)
-            {
+            Guest = await _context.Guests
+                .FirstOrDefaultAsync(m => m.GuestId == id);
+
+            if (Guest == null)
                 return NotFound();
-            }
-            else
-            {
-                Guest = guest;
-            }
+
+            // Load guest bookings + event info
+            GuestBookings = await _context.GuestBookings
+                .Where(gb => gb.GuestId == id)
+                .Include(gb => gb.Event)
+                .ToListAsync();
+
             return Page();
         }
     }
