@@ -31,6 +31,9 @@
                     <a asp-page="./Delete" asp-route-id="@item.EventId" class="btn btn-danger">Delete</a> |
 
                     <a asp-page="/GuestBookings/Create" asp-route-eventId="@item.EventId" class="btn btn-success">Book Guest</a>
+                    <a asp-page="/GuestsCount/Details" asp-route-id="@item.EventId" class="btn btn-secondary">
+                        Guest Count
+                    </a>
                 </td>
             </tr>
         }

@@ -1,5 +1,4 @@
-﻿
-@page
+﻿@page
 @model Apex.Events.EventsList.EditModel
 @using Apex.Events.Data
 
@@ -7,40 +6,43 @@
     ViewData["Title"] = "Edit Event";
 }
 
-<h1>Edit Event</h1>
+<h1 class="text-primary mb-3">Edit Event</h1>
 
-<form method="post">
+<form method="post" class="card shadow p-4">
     <input type="hidden" asp-for="Event.EventId" />
 
-    <div class="form-group">
-        <label asp-for="Event.EventName" class="control-label"></label>
+    <!-- Event Name -->
+    <div class="form-group mb-3">
+        <label asp-for="Event.EventName" class="form-label fw-bold"></label>
         <input asp-for="Event.EventName" class="form-control" />
         <span asp-validation-for="Event.EventName" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Event.EventDate" class="control-label"></label>
-        <input asp-for="Event.EventDate" class="form-control" type="date" />
-        <span asp-validation-for="Event.EventDate" class="text-danger"></span>
+    <!-- Event Date (DISABLED) -->
+    <div class="form-group mb-3">
+        <label asp-for="Event.EventDate" class="form-label fw-bold"></label>
+        <input asp-for="Event.EventDate" class="form-control" type="date" disabled />
+        <span class="form-text text-muted">Event date cannot be changed.</span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Event.EventType" class="control-label"></label>
+    <!-- Event Type (DISABLED) -->
+    <div class="form-group mb-3">
+        <label asp-for="Event.EventType" class="form-label fw-bold"></label>
         <select asp-for="Event.EventType"
                 class="form-control"
-                asp-items="Html.GetEnumSelectList<EventType>()">
+                asp-items="Html.GetEnumSelectList<EventType>()"
+                disabled>
         </select>
-        <span asp-validation-for="Event.EventType" class="text-danger"></span>
+        <span class="form-text text-muted">Event type cannot be changed.</span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Event.ReservationReference" class="control-label"></label>
+    <!-- Reservation Reference -->
+    <div class="form-group mb-3">
+        <label asp-for="Event.ReservationReference" class="form-label fw-bold"></label>
         <input asp-for="Event.ReservationReference" class="form-control" />
         <span asp-validation-for="Event.ReservationReference" class="text-danger"></span>
     </div>
 
-    <br />
-
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+    <a asp-page="Index" class="btn btn-secondary mt-3">Back to List</a>
 </form>

@@ -47,24 +47,21 @@ namespace Apex.Events.EventsList
                 return Page();
             }
 
+            // Load the existing event to preserve non-editable fields
+            var existingEvent = await _context.Events.AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EventId == Event.EventId);
+
+            if (existingEvent == null)
+                return NotFound();
+
+            // Preserve original values (date and type)
+            Event.EventDate = existingEvent.EventDate;
+            Event.EventType = existingEvent.EventType;
+
+            // Update only editable fields
             _context.Attach(Event).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EventsExists(Event.EventId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            await _context.SaveChangesAsync();
             return RedirectToPage("./Index");
         }
 
