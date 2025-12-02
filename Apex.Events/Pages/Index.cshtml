@@ -1,10 +1,75 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+
+<div class="container mt-5">
+    <h1 class="text-center mb-5 display-4">Welcome to Apex.Events</h1>
+
+
+    <div class="row g-4">
+        <!-- Events Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-calendar-event display-3 text-primary mb-3"></i>
+                    <h5 class="card-title">Events</h5>
+                    <p class="card-text">View, create, and manage Events</p>
+                    <a asp-page="/EventsList/Index" class="btn btn-primary">
+                        Go to Events <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guests Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-people-fill display-3 text-success mb-3"></i>
+                    <h5 class="card-title">Guests</h5>
+                    <p class="card-text">Manage Guests details</p>
+                    <a asp-page="/GuestsList/Index" class="btn btn-success">
+                        Go to Guests <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-journal-check display-3 text-warning mb-3"></i>
+                    <h5 class="card-title">Guest Bookings</h5>
+                    <p class="card-text">Track and manage Guests</p>
+                    <a asp-page="/GuestBookings/Index" class="btn btn-warning text-white">
+                        Go to Bookings <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-4">
+            <div class="container d-flex align-items-center py-2">
+                <!-- Logo on the left -->
+                <img src="~/images/TU.png" alt="Logo" style="height:50px; width:auto; margin-right:15px;">
+
+                <!-- Icons next to logo -->
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <i class="bi bi-person-fill"></i> Ali Shehdy
+                    </div>
+                    <div>
+                        <i class="bi bi-envelope-fill"></i> E4337126@live.tees.ac.uk
+                    </div>
+                    <div>
+                        <i class="bi bi-telephone-fill"></i> (+44)7597058341
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
