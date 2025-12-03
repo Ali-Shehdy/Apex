@@ -61,5 +61,9 @@ A booking form, A section showing booked items
 Buttons that let the user edit or cancel those items
 
 Dbinitialize
-Apex.catering/Data/DbSet
-initializes test data for a database related to catering services using Entity Framework
+Apex.catering/Data/DbTestDataInitializer
+initializes test data for a database related to catering services using Entity Framework.
+With EF Core, data access is performed using a model. A model is made up of entity classes and a context object that represents a session with the database. The context object allows querying and saving data.
+https://learn.microsoft.com/en-us/ef/core/
+
+
