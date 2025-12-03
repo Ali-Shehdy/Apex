@@ -1,0 +1,18 @@
+﻿@page
+@model Apex.Events.Pages.Staffings.DeleteModel
+
+<h2 class="mb-4">Remove Staff Assignment</h2>
+
+<div class="card p-3 shadow-sm">
+    <div class="alert alert-danger">
+        Are you sure you want to remove <strong>@Model.Staff.FirstName @Model.Staff.LastName</strong>
+        from event <strong>@Model.Event.EventName</strong>?
+    </div>
+
+    <form method="post">
+        <button type="submit" asp-route-id="@Model.Staffing.StaffingId" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Delete
+        </button>
+        <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

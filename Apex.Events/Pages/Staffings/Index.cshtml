@@ -1,0 +1,76 @@
+﻿@page
+@model Apex.Events.Pages.Staffings.IndexModel
+@{
+    ViewData["Title"] = "Event Staffing Management";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">
+            <i class="bi bi-people-fill me-2"></i> Event Staffing Management
+        </h2>
+    </div>
+
+    <div class="card shadow border-0 rounded-4">
+        <div class="card-body p-0">
+
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light border-bottom">
+                    <tr>
+                        <th class="ps-4">Event</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th style="width: 260px;" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var e in Model.Events)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-semibold">@e.EventName</td>
+                            <td>@e.EventDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <span class="badge bg-primary rounded-pill px-3 py-2">
+                                    @e.EventType
+                                </span>
+                            </td>
+
+                            <td class="text-center">
+
+                                <!-- Wrap actions in flex container -->
+                                <div class="d-flex justify-content-center gap-2">
+
+                                    <a asp-page="/Staffings/ManageStaff"
+                                       asp-route-eventId="@e.EventId"
+                                       class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                                        <i class="bi bi-people"></i> Manage
+                                    </a>
+
+                                    <a asp-page="/EventsList/Details"
+                                       asp-route-id="@e.EventId"
+                                       class="btn btn-outline-info btn-sm rounded-pill px-3"
+                                       title="View Event Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <a asp-page="/GuestsCount/Details"
+                                       asp-route-id="@e.EventId"
+                                       class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                                       title="Guest Count">
+                                        <i class="bi bi-people-fill"></i>
+                                    </a>
+
+                                </div>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+</div>

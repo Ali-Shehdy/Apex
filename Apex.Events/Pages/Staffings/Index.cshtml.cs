@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Apex.Events.Data;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace Apex.Events.Pages.Staffs
+namespace Apex.Events.Pages.Staffings
 {
     public class IndexModel : PageModel
     {
@@ -13,15 +15,11 @@ namespace Apex.Events.Pages.Staffs
             _context = context;
         }
 
-        public IList<Staff> StaffList { get; set; } = new List<Staff>();
+        public IList<Event> Events { get; set; } = default!;
 
         public async Task OnGetAsync()
         {
-            StaffList = await _context.Staffs.ToListAsync();
-            foreach (var staff in StaffList)
-            {
-                Console.WriteLine($"{staff.FirstName} {staff.LastName} - {staff.Email} - {staff.Phone}");
-            }
+            Events = await _context.Events.ToListAsync();
         }
     }
 }

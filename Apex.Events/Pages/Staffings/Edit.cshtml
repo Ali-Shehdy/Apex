@@ -1,0 +1,27 @@
+﻿@page
+@model Apex.Events.Pages.Staffings.EditModel
+
+<h2 class="mb-4">Edit Staff Assignment</h2>
+
+<div class="card p-3 shadow-sm">
+    <form method="post">
+        <input type="hidden" asp-for="Staffing.StaffingId" />
+
+        <div class="mb-3">
+            <label class="form-label">Event</label>
+            <select asp-for="Staffing.EventId" class="form-select" asp-items="Model.EventList">
+                <option value="">-- Select Event --</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Staff</label>
+            <select asp-for="Staffing.StaffId" class="form-select" asp-items="Model.StaffList">
+                <option value="">-- Select Staff --</option>
+            </select>
+        </div>
+
+        <button class="btn btn-warning"><i class="bi bi-pencil"></i> Update</button>
+        <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

@@ -1,0 +1,27 @@
+﻿@page
+@model Apex.Events.Pages.Staffings.CreateModel
+
+<h2 class="mb-4">Assign Staff to Event</h2>
+
+<div class="card p-3 shadow-sm">
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Event</label>
+            <select asp-for="Staffing.EventId" class="form-select" asp-items="Model.EventList">
+                <option value="">-- Select Event --</option>
+            </select>
+            <span asp-validation-for="Staffing.EventId" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Staff</label>
+            <select asp-for="Staffing.StaffId" class="form-select" asp-items="Model.StaffList">
+                <option value="">-- Select Staff --</option>
+            </select>
+            <span asp-validation-for="Staffing.StaffId" class="text-danger"></span>
+        </div>
+
+        <button class="btn btn-success"><i class="bi bi-plus-circle"></i> Assign</button>
+        <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

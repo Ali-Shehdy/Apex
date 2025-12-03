@@ -50,6 +50,10 @@
                             <a asp-page="/GuestsCount/Details" asp-route-id="@item.EventId" class="btn btn-secondary btn-sm" title="Guest Count">
                                 <i class="bi bi-people"></i>
                             </a>
+                            <a asp-page="/Staffings/ManageStaff" asp-route-eventId="@item.EventId"
+                               class="btn btn-secondary btn-sm" title="Manage Staff">
+                                <i class="bi bi-people-fill"></i>
+                            </a>
                         </div>
                     </td>
                 </tr>
