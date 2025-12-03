@@ -1,0 +1,16 @@
+﻿@page
+@model Apex.Events.Pages.Staffs.DeleteModel
+
+<h2>Delete Staff</h2>
+
+<div class="alert alert-danger mt-4">
+    <h5>Are you sure you want to delete this staff member?</h5>
+    <p><strong>@Model.Staff.FirstName @Model.Staff.LastName</strong></p>
+</div>
+
+<form method="post">
+    <button class="btn btn-danger">
+        <i class="bi bi-trash"></i> Delete
+    </button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>

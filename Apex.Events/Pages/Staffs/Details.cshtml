@@ -1,0 +1,44 @@
+﻿@page
+@model Apex.Events.Pages.Staffs.DetailsModel
+
+<h2 class="mb-3">Staff Details</h2>
+
+<div class="card shadow-sm p-4 mb-4">
+    <h4>@Model.Staff.FirstName @Model.Staff.LastName</h4>
+    <p><strong>Email:</strong> @Model.Staff.Email</p>
+    <p><strong>Phone:</strong> @Model.Staff.Phone</p>
+    <p><strong>Role:</strong> @Model.Staff.Role</p>
+</div>
+
+<h4 class="mt-4">Upcoming Assigned Events</h4>
+
+@if (!Model.UpcomingEvents.Any())
+{
+    <p class="text-muted">This staff member is not assigned to any upcoming events.</p>
+}
+else
+{
+    <div class="card shadow-sm">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Event Name</th>
+                    <th>Event Date</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ev in Model.UpcomingEvents)
+                {
+                    <tr>
+                        <td>@ev.EventName</td>
+                        <td>@ev.EventDate.ToShortDateString()</td>
+                        <td>@ev.EventType</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a asp-page="Index" class="btn btn-secondary mt-3">Back</a>

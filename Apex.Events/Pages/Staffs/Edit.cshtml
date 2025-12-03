@@ -1,0 +1,42 @@
+﻿@page
+@model Apex.Events.Pages.Staffs.EditModel
+
+<h2>Edit Staff Member</h2>
+
+<div class="card p-4 shadow-sm mt-3">
+    <form method="post">
+
+        <input type="hidden" asp-for="Staff.StaffId" />
+
+        <div class="mb-3">
+            <label class="form-label">First Name</label>
+            <input asp-for="Staff.FirstName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Last Name</label>
+            <input asp-for="Staff.LastName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input asp-for="Staff.Email" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <input asp-for="Staff.Phone" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Role</label>
+            <input asp-for="Staff.Role" class="form-control" />
+        </div>
+
+        <button class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Update
+        </button>
+
+        <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
