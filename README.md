@@ -40,7 +40,7 @@ Editing a Food Booking
 This means the user should be able to change a previously selected food item.
 For example:
 
-Change “Chicken Meal” to “Vegetarian Meal”, Update the quantity, Update details before the event
+Change â€œChicken Mealâ€ to â€œVegetarian Mealâ€, Update the quantity, Update details before the event
 
 This can be done by:
 
@@ -59,3 +59,7 @@ Building a webpage and provide:
 
 A booking form, A section showing booked items
 Buttons that let the user edit or cancel those items
+
+Dbinitialize
+Apex.catering/Data/DbSet
+initializes test data for a database related to catering services using Entity Framework
