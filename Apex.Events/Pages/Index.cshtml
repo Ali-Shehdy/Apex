@@ -8,37 +8,9 @@
 <div class="container mt-5">
     <h1 class="text-center mb-5 display-4">Welcome to Apex.Events</h1>
 
+    <div class="row g-4 mt-4">
 
-    <div class="row g-4">
-        <!-- Events Card -->
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100 text-center">
-                <div class="card-body">
-                    <i class="bi bi-calendar-event display-3 text-primary mb-3"></i>
-                    <h5 class="card-title">Events</h5>
-                    <p class="card-text">View, create, and manage Events</p>
-                    <a asp-page="/EventsList/Index" class="btn btn-primary">
-                        Go to Events <i class="bi bi-arrow-right-circle ms-1"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Guests Card -->
-        <div class="col-md-4">
-            <div class="card shadow-sm h-100 text-center">
-                <div class="card-body">
-                    <i class="bi bi-people-fill display-3 text-success mb-3"></i>
-                    <h5 class="card-title">Guests</h5>
-                    <p class="card-text">Manage Guests details</p>
-                    <a asp-page="/GuestsList/Index" class="btn btn-success">
-                        Go to Guests <i class="bi bi-arrow-right-circle ms-1"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bookings Card -->
+        <!-- Guest Bookings Card -->
         <div class="col-md-4">
             <div class="card shadow-sm h-100 text-center">
                 <div class="card-body">
@@ -48,6 +20,74 @@
                     <a asp-page="/GuestBookings/Index" class="btn btn-warning text-white">
                         Go to Bookings <i class="bi bi-arrow-right-circle ms-1"></i>
                     </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-calendar-event display-3 text-primary mb-3"></i>
+                    <h5 class="card-title">Events</h5>
+                    <p class="card-text">View and manage all events</p>
+                    <a asp-page="/EventsList/Index" class="btn btn-primary text-white">
+                        Go to Events <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guests Count Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-people display-3 text-success mb-3"></i>
+                    <h5 class="card-title">Guests Overview</h5>
+                    <p class="card-text">See total guests for each event</p>
+                    <a asp-page="/GuestsList/Index" class="btn btn-success text-white">
+                        View Guests <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ROW 2 — 2 Cards -->
+    <div class="row g-4 mt-4">
+
+        <!-- Staff Members Card -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-people-fill display-3 text-primary mb-3"></i>
+                    <h5 class="card-title">Staff Members</h5>
+                    <p class="card-text">View and manage your staff team</p>
+                    <a asp-page="/Staffs/Index" class="btn btn-primary text-white">
+                        Go to Staff <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Staffing Card -->
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-briefcase-fill display-3 text-success mb-3"></i>
+                    <h5 class="card-title">Event Staffing</h5>
+                    <p class="card-text">Assign staff to events and manage roles</p>
+                    <a asp-page="/Staffings/Index" class="btn btn-success text-white">
+                        Manage Staffing <i class="bi bi-arrow-right-circle ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
                 </div>
             </div>
         </div>
