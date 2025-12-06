@@ -29,6 +29,12 @@ builder.Services.AddScoped<DbTestDataInitializer>();
 
 var app = builder.Build();
 
+builder.Services.AddHttpClient<VenueService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7135/api/"); // Apex.Venues host
+});
+app.Run();
+
 // Ensure database is created
 using (var scope = app.Services.CreateScope())
 {

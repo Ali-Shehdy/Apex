@@ -17,4 +17,8 @@
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Apex.Venues\Apex.Venues.csproj" />
+  </ItemGroup>
+
 </Project>

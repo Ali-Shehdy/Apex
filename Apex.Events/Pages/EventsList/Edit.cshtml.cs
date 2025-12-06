@@ -13,10 +13,13 @@ namespace Apex.Events.EventsList
     public class EditModel : PageModel
     {
         private readonly Apex.Events.Data.EventsDbContext _context;
+        private readonly VenueService _venueService;
 
-        public EditModel(Apex.Events.Data.EventsDbContext context)
+
+        public EditModel(Apex.Events.Data.EventsDbContext context, VenueService venueService)
         {
             _context = context;
+            _venueService = venueService;
         }
 
         [BindProperty]

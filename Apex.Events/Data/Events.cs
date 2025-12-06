@@ -21,6 +21,7 @@ namespace Apex.Events.Data
 
         // Nullable foreign key to Reservation (implicitly defined)
         public string? ReservationReference { get; set; } // // Foreign key to Reservation
+        public string? VenueCode { get; set; } // Foreign key to Venue
 
     }
 
