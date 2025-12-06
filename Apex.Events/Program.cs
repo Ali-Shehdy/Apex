@@ -1,4 +1,4 @@
-using Apex.Events.Data;
+﻿using Apex.Events.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,14 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add Razor Pages
 builder.Services.AddRazorPages();
 
-// Add Controllers (API support)
+// Add Controllers
 builder.Services.AddControllers();
 
 // Add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+// Add DbContext with SQLite
 builder.Services.AddDbContext<EventsDbContext>(options =>
 {
     var dbPath = Path.Combine(
@@ -22,27 +22,27 @@ builder.Services.AddDbContext<EventsDbContext>(options =>
 
     options.UseSqlite($"Data Source={dbPath}");
 });
-builder.Services.AddRazorPages();
-// Add DbContext with SQLite
 
+// Add Db Initializer
 builder.Services.AddScoped<DbTestDataInitializer>();
 
-var app = builder.Build();
-
+// 🔥 REGISTER VENUE SERVICE HERE (before Build)
 builder.Services.AddHttpClient<VenueService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7135/api/"); // Apex.Venues host
 });
-app.Run();
 
-// Ensure database is created
+// Build App
+var app = builder.Build();
+
+// Ensure database exists
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<EventsDbContext>();
-    db.Database.EnsureCreated(); // Creates the SQLite file if missing
+    db.Database.EnsureCreated();
 }
 
-// Developer Exception Page
+// Developer Exception page / HSTS
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -58,19 +58,16 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 
-// Map Razor Pages
+// Razor pages + API routes
 app.MapRazorPages();
-
-// Map API controllers
 app.MapControllers();
+
 app.Run();
 
+// --- Helper ---
 void AddTestData(IHost app)
 {
-    using (var scope = app.Services.CreateScope())
-    {
-       var services = scope.ServiceProvider;
-        var initializer = services.GetRequiredService<DbTestDataInitializer>();
-        initializer.Initialize();
-    }
+    using var scope = app.Services.CreateScope();
+    var initializer = scope.ServiceProvider.GetRequiredService<DbTestDataInitializer>();
+    initializer.Initialize();
 }

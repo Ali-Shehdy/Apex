@@ -11,38 +11,40 @@
 <form method="post" class="card shadow p-4">
     <input type="hidden" asp-for="Event.EventId" />
 
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
     <!-- Event Name -->
-    <div class="form-group mb-3">
+    <div class="mb-3">
         <label asp-for="Event.EventName" class="form-label fw-bold"></label>
         <input asp-for="Event.EventName" class="form-control" />
         <span asp-validation-for="Event.EventName" class="text-danger"></span>
     </div>
 
-    <!-- Event Date (DISABLED) -->
-    <div class="form-group mb-3">
+    <!-- Event Date (Disabled) -->
+    <div class="mb-3">
         <label asp-for="Event.EventDate" class="form-label fw-bold"></label>
         <input asp-for="Event.EventDate" class="form-control" type="date" disabled />
         <span class="form-text text-muted">Event date cannot be changed.</span>
     </div>
 
-    <!-- Event Type (DISABLED) -->
-    <div class="form-group mb-3">
+    <!-- Event Type (Disabled) -->
+    <div class="mb-3">
         <label asp-for="Event.EventType" class="form-label fw-bold"></label>
         <select asp-for="Event.EventType"
-                class="form-control"
                 asp-items="Html.GetEnumSelectList<EventType>()"
+                class="form-control"
                 disabled>
         </select>
         <span class="form-text text-muted">Event type cannot be changed.</span>
     </div>
 
-    <!-- Reservation Reference -->
-    <div class="form-group mb-3">
-        <label asp-for="Event.ReservationReference" class="form-label fw-bold"></label>
-        <input asp-for="Event.ReservationReference" class="form-control" />
-        <span asp-validation-for="Event.ReservationReference" class="text-danger"></span>
+    <!-- Reservation Reference (Read-only) -->
+    <div class="mb-3">
+        <label class="form-label fw-bold">Reservation</label>
+        <input class="form-control" value="@Model.Event.ReservationReference" disabled />
+        <span class="form-text text-muted">Automatically updated when editing.</span>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Save</button>
-    <a asp-page="Index" class="btn btn-secondary mt-3">Back to List</a>
+    <button class="btn btn-primary mt-3">Save</button>
+    <a asp-page="Index" class="btn btn-secondary mt-3">Back</a>
 </form>

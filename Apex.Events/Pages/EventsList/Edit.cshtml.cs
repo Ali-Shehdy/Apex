@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Apex.Events.Data;
 
@@ -12,11 +10,10 @@ namespace Apex.Events.EventsList
 {
     public class EditModel : PageModel
     {
-        private readonly Apex.Events.Data.EventsDbContext _context;
+        private readonly EventsDbContext _context;
         private readonly VenueService _venueService;
 
-
-        public EditModel(Apex.Events.Data.EventsDbContext context, VenueService venueService)
+        public EditModel(EventsDbContext context, VenueService venueService)
         {
             _context = context;
             _venueService = venueService;
@@ -28,49 +25,52 @@ namespace Apex.Events.EventsList
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var events =  await _context.Events.FirstOrDefaultAsync(m => m.EventId == id);
+            var events = await _context.Events.FirstOrDefaultAsync(m => m.EventId == id);
+
             if (events == null)
-            {
                 return NotFound();
-            }
+
             Event = events;
             return Page();
         }
 
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more information, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-            {
                 return Page();
-            }
 
-            // Load the existing event to preserve non-editable fields
+            // Load the original event (we must keep the date & type)
             var existingEvent = await _context.Events.AsNoTracking()
                 .FirstOrDefaultAsync(e => e.EventId == Event.EventId);
 
             if (existingEvent == null)
                 return NotFound();
 
-            // Preserve original values (date and type)
+            // Keep original values
             Event.EventDate = existingEvent.EventDate;
             Event.EventType = existingEvent.EventType;
 
-            // Update only editable fields
+            // --- STEP 4: Update Reservation via Apex.Venues ---
+            string? reservationReference = await _venueService.ReserveVenue(
+                existingEvent.EventDate,
+                Event.VenueCode!
+            );
+
+            if (reservationReference == null)
+            {
+                ModelState.AddModelError("", "Venue reservation failed.");
+                return Page();
+            }
+
+            // Update event with new reservation reference
+            Event.ReservationReference = reservationReference;
+
             _context.Attach(Event).State = EntityState.Modified;
-
             await _context.SaveChangesAsync();
-            return RedirectToPage("./Index");
-        }
 
-        private bool EventsExists(int id)
-        {
-            return _context.Events.Any(e => e.EventId == id);
+            return RedirectToPage("./Index");
         }
     }
 }
