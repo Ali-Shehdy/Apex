@@ -50,7 +50,6 @@ namespace Apex.Events.EventsList
 
             // Keep original values
             Event.EventDate = existingEvent.EventDate;
-            Event.EventType = existingEvent.EventType;
 
             // --- STEP 4: Update Reservation via Apex.Venues ---
             string? reservationReference = await _venueService.ReserveVenue(

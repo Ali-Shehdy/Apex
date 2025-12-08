@@ -9,7 +9,6 @@
 
         public Staff Staff { get; set; } = null!; // Relation property to Staff
         public Event Event { get; set; } = null!; // Relation property to Event
-        public EventType EventType { get; set; } 
 
     }
 }

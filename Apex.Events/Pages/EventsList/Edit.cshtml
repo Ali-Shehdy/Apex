@@ -27,16 +27,7 @@
         <span class="form-text text-muted">Event date cannot be changed.</span>
     </div>
 
-    <!-- Event Type (Disabled) -->
-    <div class="mb-3">
-        <label asp-for="Event.EventType" class="form-label fw-bold"></label>
-        <select asp-for="Event.EventType"
-                asp-items="Html.GetEnumSelectList<EventType>()"
-                class="form-control"
-                disabled>
-        </select>
-        <span class="form-text text-muted">Event type cannot be changed.</span>
-    </div>
+   
 
     <!-- Reservation Reference (Read-only) -->
     <div class="mb-3">

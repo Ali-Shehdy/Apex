@@ -13,14 +13,7 @@
         <input asp-for="Event.EventDate" class="form-control" type="date" />
     </div>
 
-    <div class="form-group">
-        <label asp-for="Event.EventType"></label>
-        <select asp-for="Event.EventType"
-                class="form-control"
-                asp-items="Html.GetEnumSelectList<EventType>()">
-            <option value="">-- Select Event Type --</option>
-        </select>
-    </div>
+    
 
     <div class="form-group">
         <label asp-for="Event.ReservationReference"></label>

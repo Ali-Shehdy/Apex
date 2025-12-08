@@ -29,7 +29,6 @@ namespace Apex.Events.Controllers
             {
                 EventName = dto.EventName,
                 EventDate = dto.EventDate,
-                EventType = dto.EventType,
             };
 
             _context.Events.Add(newEvent);
@@ -80,7 +79,6 @@ namespace Apex.Events.Controllers
 
             existingEvent.EventName = dto.EventName;
             existingEvent.EventDate = dto.EventDate;
-            existingEvent.EventType = dto.EventType;
 
             _context.Entry(existingEvent).State = EntityState.Modified;
 

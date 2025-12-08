@@ -14,7 +14,5 @@ namespace Apex.Events.Dto
         [Required]
         public DateTime EventDate { get; set; }
 
-        [Required]
-        public EventType EventType { get; set; }
     }
 }

@@ -17,8 +17,8 @@
             }
             var eventList= new List<Event>
             {
-                new Event { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1), EventType = EventType.Conference },
-                new Event { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2), EventType = EventType.Wedding }
+                new Event { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1)},
+                new Event { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2) }
             };
             _context.Events.AddRange(eventList);
             _context.SaveChanges();
