@@ -1,42 +1,46 @@
-﻿using Apex.Events.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Apex.Events.Data;
 using Apex.Events.Models;
 using Apex.Events.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
-public class CreateModel : PageModel
+namespace Apex.Events.EventsList
 {
-    private readonly EventTypeService _eventTypeService;
-    private readonly EventsDbContext _context;
-
-    public List<EventTypeDTO> EventTypes { get; set; } = new();
-
-    public CreateModel(EventsDbContext context, EventTypeService eventTypeService)
+    public class CreateModel : PageModel
     {
-        _context = context;
-        _eventTypeService = eventTypeService;
-    }
+        private readonly EventsDbContext _context;
+        private readonly EventTypeService _eventTypeService;
 
-    public async Task<IActionResult> OnGetAsync()
-    {
-        EventTypes = await _eventTypeService.GetEventTypesAsync();
-        return Page();
-    }
-
-    [BindProperty]
-    public Apex.Events.Data.Event Event { get; set; } = default!;
-
-    public async Task<IActionResult> OnPostAsync()
-    {
-        if (!ModelState.IsValid)
+        public CreateModel(EventsDbContext context, EventTypeService eventTypeService)
         {
+            _context = context;
+            _eventTypeService = eventTypeService;
+        }
+
+        [BindProperty]
+        public Event Event { get; set; } = default!;
+
+        public List<EventTypeDTO> EventTypes { get; set; } = new List<EventTypeDTO>();
+
+        public async Task<IActionResult> OnGetAsync()
+        {
+            // Load event types from Apex.Venues API
             EventTypes = await _eventTypeService.GetEventTypesAsync();
             return Page();
         }
 
-        _context.Events.Add(Event);
-        await _context.SaveChangesAsync();
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
+            {
+                EventTypes = await _eventTypeService.GetEventTypesAsync();
+                return Page();
+            }
 
-        return RedirectToPage("./Index");
+            _context.Events.Add(Event);
+            await _context.SaveChangesAsync();
+
+            return RedirectToPage("./Index");
+        }
     }
 }
