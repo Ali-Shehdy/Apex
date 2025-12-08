@@ -1,29 +1,39 @@
-﻿using Apex.Events.Models;
+﻿using System.Net.Http;
+using System.Net.Http.Json;
+using Apex.Events.Models;
 
-public class EventTypeService
+namespace Apex.Events.Services
 {
-    private readonly HttpClient _client;
-
-    public EventTypeService(HttpClient client)
+    public class EventTypeService
     {
-        _client = client;  // BaseAddress comes from Program.cs
-    }
+        private readonly HttpClient _client;
 
-    public async Task<List<EventTypeDTO>> GetEventTypesAsync()
-    {
-        try
+        public EventTypeService(HttpClient client)
         {
-            var response = await _client.GetAsync("api/eventtypes");
-
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content
-                .ReadFromJsonAsync<List<EventTypeDTO>>()
-                ?? new List<EventTypeDTO>();
+            _client = client;
         }
-        catch (Exception ex)
+
+        public async Task<List<EventTypeDTO>> GetEventTypesAsync()
         {
-            Console.WriteLine($"API ERROR: {ex.Message}");
+            try
+            {
+                var response = await _client.GetAsync("api/eventtypes");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<List<EventTypeDTO>>();
+                    return result ?? new List<EventTypeDTO>();
+                }
+                else
+                {
+                    Console.WriteLine($"EventTypeService HTTP Error: {response.StatusCode}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"EventTypeService Exception: {ex.Message}");
+            }
+
             return new List<EventTypeDTO>();
         }
     }

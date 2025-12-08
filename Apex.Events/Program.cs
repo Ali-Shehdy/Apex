@@ -27,11 +27,20 @@ builder.Services.AddDbContext<EventsDbContext>(options =>
 builder.Services.AddScoped<DbTestDataInitializer>();
 
 // 🔥 REGISTER VENUE SERVICE (EventTypeService) WITH CONFIGURED URL
+// Add HttpClient for EventTypeService
 builder.Services.AddHttpClient<EventTypeService>(client =>
 {
-    var url = builder.Configuration["VenuesApiUrl"];
-    client.BaseAddress = new Uri(url);
-});
+    client.BaseAddress = new Uri(builder.Configuration["VenuesApiUrl"]);
+    client.DefaultRequestVersion = System.Net.HttpVersion.Version20;
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+    new HttpClientHandler
+    {
+        // Accept self-signed HTTPS certificates in development
+        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    });
+
 
 
 // Build App

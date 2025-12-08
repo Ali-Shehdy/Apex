@@ -24,16 +24,20 @@ namespace Apex.Events.EventsList
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // Load event types from Apex.Venues API
             EventTypes = await _eventTypeService.GetEventTypesAsync();
+            if (EventTypes.Count == 0)
+            {
+                ModelState.AddModelError("", "Could not load Event Types from the Venues API.");
+            }
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
+            EventTypes = await _eventTypeService.GetEventTypesAsync();
+
             if (!ModelState.IsValid)
             {
-                EventTypes = await _eventTypeService.GetEventTypesAsync();
                 return Page();
             }
 
