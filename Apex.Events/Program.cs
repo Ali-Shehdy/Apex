@@ -1,4 +1,5 @@
 ﻿using Apex.Events.Data;
+using Apex.Events.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,18 +20,19 @@ builder.Services.AddDbContext<EventsDbContext>(options =>
     var dbPath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
         "events.db");
-
     options.UseSqlite($"Data Source={dbPath}");
 });
 
 // Add Db Initializer
 builder.Services.AddScoped<DbTestDataInitializer>();
 
-// 🔥 REGISTER VENUE SERVICE HERE (before Build)
-builder.Services.AddHttpClient<VenueService>(client =>
+// 🔥 REGISTER VENUE SERVICE (EventTypeService) WITH CONFIGURED URL
+builder.Services.AddHttpClient<EventTypeService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7135/api/"); // Apex.Venues host
+    var url = builder.Configuration["VenuesApiUrl"];
+    client.BaseAddress = new Uri(url);
 });
+
 
 // Build App
 var app = builder.Build();

@@ -1,43 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Apex.Events.Data;
+using Apex.Events.Models;
+using Apex.Events.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Apex.Events.Data;
 
-namespace Apex.Events.EventsList
+public class CreateModel : PageModel
 {
-    public class CreateModel : PageModel
+    private readonly EventTypeService _eventTypeService;
+    private readonly EventsDbContext _context;
+
+    public List<EventTypeDTO> EventTypes { get; set; } = new();
+
+    public CreateModel(EventsDbContext context, EventTypeService eventTypeService)
     {
-        private readonly Apex.Events.Data.EventsDbContext _context;
+        _context = context;
+        _eventTypeService = eventTypeService;
+    }
 
-        public CreateModel(Apex.Events.Data.EventsDbContext context)
-        {
-            _context = context;
-        }
+    public async Task<IActionResult> OnGetAsync()
+    {
+        EventTypes = await _eventTypeService.GetEventTypesAsync();
+        return Page();
+    }
 
-        public IActionResult OnGet()
+    [BindProperty]
+    public Apex.Events.Data.Event Event { get; set; } = default!;
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (!ModelState.IsValid)
         {
+            EventTypes = await _eventTypeService.GetEventTypesAsync();
             return Page();
         }
 
-        [BindProperty]
-        public Apex.Events.Data.Event Event { get; set; } = default!;
+        _context.Events.Add(Event);
+        await _context.SaveChangesAsync();
 
-        // For more information, see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            _context.Events.Add(Event);
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("./Index");
-        }
+        return RedirectToPage("./Index");
     }
 }

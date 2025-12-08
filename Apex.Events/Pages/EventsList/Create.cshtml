@@ -1,6 +1,9 @@
 ﻿@page
 @model Apex.Events.EventsList.CreateModel
 @using Apex.Events.Data
+@using Apex.Events.Models
+
+<h2>Create Event</h2>
 
 <form method="post">
     <div class="form-group">
@@ -13,12 +16,21 @@
         <input asp-for="Event.EventDate" class="form-control" type="date" />
     </div>
 
-    
+    <div class="form-group">
+        <label asp-for="Event.EventTypeId">Event Type</label>
+        <select asp-for="Event.EventTypeId" class="form-control">
+            <option value="">-- Select Event Type --</option>
+            @foreach (var et in Model.EventTypes)
+            {
+                <option value="@et.Id">@et.Title</option>
+            }
+        </select>
+    </div>
 
     <div class="form-group">
         <label asp-for="Event.ReservationReference"></label>
         <input asp-for="Event.ReservationReference" class="form-control" />
     </div>
 
-    <button type="submit">Create</button>
+    <button type="submit" class="btn btn-primary">Create</button>
 </form>

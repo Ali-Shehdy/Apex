@@ -13,6 +13,7 @@ namespace Apex.Events.Data
         public int EventId { get; set; } // Primary key
         public string EventName { get; set; } = string.Empty; // Not Nullable
         public DateTime EventDate { get; set; }
+        public string? EventTypeId { get; set; }
 
         // Navigation property
         public virtual ICollection<GuestBooking> GuestBookings { get; set; } = new List<GuestBooking>();
