@@ -66,4 +66,5 @@ initializes test data for a database related to catering services using Entity F
 With EF Core, data access is performed using a model. A model is made up of entity classes and a context object that represents a session with the database. The context object allows querying and saving data.
 https://learn.microsoft.com/en-us/ef/core/
 
+I want to create new commit thats why I write this coment 
 
