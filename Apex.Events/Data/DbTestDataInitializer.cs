@@ -11,7 +11,9 @@
 
         public void Initialize()
         {
-            if(_context.Events.Any())
+            _context.Database.EnsureCreated();
+
+            if (_context.Events.Any())
             {
                 return; // DB has been seeded
             }

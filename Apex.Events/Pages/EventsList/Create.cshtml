@@ -1,36 +1,174 @@
 ﻿@page
 @model Apex.Events.EventsList.CreateModel
-@using Apex.Events.Data
-@using Apex.Events.Models
+@{
+    ViewData["Title"] = "Create New Event";
+}
 
-<h2>Create Event</h2>
+<h1 class="text-primary mb-3">Create New Event</h1>
 
-<form method="post">
-    <div class="form-group">
-        <label asp-for="Event.EventName"></label>
-        <input asp-for="Event.EventName" class="form-control" />
+<form method="post" class="card shadow p-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <!-- Event Name -->
+    <div class="mb-3">
+        <label asp-for="Event.EventName" class="form-label fw-bold">Event Name *</label>
+        <input asp-for="Event.EventName" class="form-control" placeholder="Enter event name" required />
+        <span asp-validation-for="Event.EventName" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Event.EventDate"></label>
-        <input asp-for="Event.EventDate" class="form-control" type="date" />
+    <!-- Event Type -->
+    <div class="mb-3">
+        <label asp-for="SelectedEventTypeId" class="form-label fw-bold">Event Type *</label>
+        
+        @if (Model.EventTypeSelectList?.Any() == true)
+        {
+            <select asp-for="SelectedEventTypeId" 
+                    asp-items="Model.EventTypeSelectList" 
+                    class="form-select" required>
+                <option value="">-- Select Event Type --</option>
+            </select>
+            <small class="form-text text-muted">
+                Required to check available venues
+            </small>
+        }
+        else
+        {
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle"></i>
+                Event types could not be loaded. Please try refreshing the page.
+            </div>
+            <select class="form-select" disabled>
+                <option>Loading event types...</option>
+            </select>
+        }
+        <span asp-validation-for="SelectedEventTypeId" class="text-danger"></span>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Event.EventTypeId">Event Type</label>
-        <select asp-for="Event.EventTypeId" class="form-control">
-            <option value="">-- Select Event Type --</option>
-            @foreach (var et in Model.EventTypes)
+    <!-- Event Date -->
+    <div class="mb-3">
+        <label asp-for="SelectedDate" class="form-label fw-bold">Event Date *</label>
+        <input asp-for="SelectedDate" 
+               class="form-control" 
+               type="date" 
+               min="@DateTime.Today.ToString("yyyy-MM-dd")" 
+               required />
+        <small class="form-text text-muted">
+            Select a date at least 2 months from now for best venue availability
+        </small>
+        <span asp-validation-for="SelectedDate" class="text-danger"></span>
+    </div>
+
+    <!-- Check Available Venues Button -->
+    <div class="mb-3">
+        <button type="submit" asp-page-handler="LoadVenues" class="btn btn-info"
+                disabled="@(string.IsNullOrEmpty(Model.SelectedEventTypeId))">
+            <i class="bi bi-search"></i> Check Available Venues
+        </button>
+
+
+        <small class="form-text text-muted d-block mt-1">
+            @if (string.IsNullOrEmpty(Model.SelectedEventTypeId))
             {
-                <option value="@et.Id">@et.Title</option>
+                <span class="text-warning">⚠️ Please select an event type first</span>
             }
-        </select>
+            else
+            {
+                <span>Click to check venues for <strong>@Model.SelectedEventTypeId</strong> on <strong>@Model.SelectedDate.ToString("MMMM dd, yyyy")</strong></span>
+            }
+        </small>
     </div>
 
-    <div class="form-group">
-        <label asp-for="Event.ReservationReference"></label>
-        <input asp-for="Event.ReservationReference" class="form-control" />
+    <!-- Venue Selection -->
+    <div class="mb-3">
+        <label asp-for="SelectedVenueCode" class="form-label fw-bold">Select Venue</label>
+        
+        @if (Model.HasCheckedVenues)
+        {
+            if (Model.AvailableVenues.Any())
+            {
+                <select asp-for="SelectedVenueCode" class="form-select" required>
+                    <option value="">-- Select a Venue --</option>
+                    @foreach (var venue in Model.AvailableVenues)
+                    {
+                        <option value="@venue.Code">
+                            @venue.Name (Capacity: @venue.Capacity)
+                        </option>
+                    }
+                </select>
+                <small class="form-text text-success">
+                    ✅ @Model.AvailableVenues.Count venue(s) available
+                </small>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    No venues available for <strong>@Model.SelectedEventTypeId</strong> on <strong>@Model.SelectedDate.ToString("MMMM dd, yyyy")</strong>.
+                    <br/>
+                    <small>Try a different date or check if Apex.Venues is running.</small>
+                </div>
+                <select asp-for="SelectedVenueCode" class="form-select" disabled>
+                    <option>No venues available</option>
+                </select>
+            }
+        }
+        else
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                Click "Check Available Venues" to see venues for your selected event type and date.
+            </div>
+            <select asp-for="SelectedVenueCode" class="form-select" disabled>
+                <option>Check venues first</option>
+            </select>
+        }
+        <span asp-validation-for="SelectedVenueCode" class="text-danger"></span>
     </div>
 
-    <button type="submit" class="btn btn-primary">Create</button>
+    <!-- Hidden field to bind Event.EventDate -->
+    <input type="hidden" asp-for="Event.EventDate" />
+
+    <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary" 
+                @(!Model.HasCheckedVenues || !Model.AvailableVenues.Any() ? "disabled" : "")>
+            Create Event
+        </button>
+        <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+    </div>
 </form>
+
+@section Scripts {
+    <script>
+        // Enable/disable Check Venues button based on selection
+        const eventTypeSelect = document.getElementById('SelectedEventTypeId');
+        const dateInput = document.getElementById('SelectedDate');
+        const checkVenuesBtn = document.querySelector('button[asp-page-handler="LoadVenues"]');
+        
+        function updateCheckVenuesButton() {
+            const hasEventType = eventTypeSelect && eventTypeSelect.value !== '';
+            const hasDate = dateInput && dateInput.value !== '';
+            
+            if (checkVenuesBtn) {
+                checkVenuesBtn.disabled = !hasEventType || !hasDate;
+            }
+        }
+        
+        if (eventTypeSelect) {
+            eventTypeSelect.addEventListener('change', updateCheckVenuesButton);
+        }
+        
+        if (dateInput) {
+            dateInput.addEventListener('change', updateCheckVenuesButton);
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', updateCheckVenuesButton);
+        
+        // Sync SelectedDate with Event.EventDate
+        if (dateInput) {
+            dateInput.addEventListener('change', function() {
+                document.getElementById('Event_EventDate').value = this.value;
+            });
+        }
+    </script>
+}

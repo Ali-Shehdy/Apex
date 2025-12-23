@@ -1,24 +1,25 @@
-﻿using Apex.Events.Data;
+﻿// Apex.Events/Program.cs
+using Apex.Events.Data;
 using Apex.Events.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add Razor Pages
+// Add services
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 builder.Services.AddRazorPages();
-
-// Add Controllers
 builder.Services.AddControllers();
-
-// Add Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add DbContext with SQLite
+// Configure DbContext
 builder.Services.AddDbContext<EventsDbContext>(options =>
 {
     var dbPath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "events.db");
     options.UseSqlite($"Data Source={dbPath}");
 });
@@ -26,34 +27,73 @@ builder.Services.AddDbContext<EventsDbContext>(options =>
 // Add Db Initializer
 builder.Services.AddScoped<DbTestDataInitializer>();
 
-// 🔥 REGISTER VENUE SERVICE (EventTypeService) WITH CONFIGURED URL
-// Add HttpClient for EventTypeService
-builder.Services.AddHttpClient<EventTypeService>(client =>
+// ✅ Register EventTypeService
+builder.Services.AddHttpClient<EventTypeService>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["VenuesApiUrl"]);
-    client.DefaultRequestVersion = System.Net.HttpVersion.Version20;
+    // Configure base address for Apex.Venues API
+    // This should be the same as your Venues project URL
+    client.BaseAddress = new Uri("https://localhost:7030/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+
+    // For development - handle self-signed certificates
+    if (builder.Environment.IsDevelopment())
+    {
+        client.DefaultRequestVersion = System.Net.HttpVersion.Version20;
+    }
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler();
+
+    // For development only: accept any certificate
+    if (builder.Environment.IsDevelopment())
+    {
+        handler.ServerCertificateCustomValidationCallback =
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    }
+
+    return handler;
+});
+
+// ✅ Register your VenueReservationService (if you created it)
+builder.Services.AddScoped<IVenueReservationService, VenueReservationService>();
+
+// ✅ Register HttpClient for VenueReservationService
+builder.Services.AddHttpClient<VenueReservationService>((serviceProvider, client) =>
+{
+    // Configure base address for Apex.Venues API
+    client.BaseAddress = new Uri("https://localhost:7030/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 })
 .ConfigurePrimaryHttpMessageHandler(() =>
-    new HttpClientHandler
+{
+    var handler = new HttpClientHandler();
+
+    if (builder.Environment.IsDevelopment())
     {
-        // Accept self-signed HTTPS certificates in development
-        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-    });
+        handler.ServerCertificateCustomValidationCallback =
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    }
 
+    return handler;
+});
 
-
-// Build App
 var app = builder.Build();
 
-// Ensure database exists
+// 🔥 CRITICAL: CREATE DATABASE BEFORE SEEDING
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<EventsDbContext>();
-    db.Database.EnsureCreated();
+    var dbContext = scope.ServiceProvider.GetRequiredService<EventsDbContext>();
+
+    // Ensure database is created (creates tables if they don't exist)
+    dbContext.Database.EnsureCreated();
+
+    // Now seed data
+    var initializer = scope.ServiceProvider.GetRequiredService<DbTestDataInitializer>();
+    initializer.Initialize();
 }
 
-// Developer Exception page / HSTS
+// Configure pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -61,7 +101,9 @@ if (!app.Environment.IsDevelopment())
 }
 else
 {
-    AddTestData(app);
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -69,16 +111,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
 
-// Razor pages + API routes
 app.MapRazorPages();
 app.MapControllers();
 
 app.Run();
-
-// --- Helper ---
-void AddTestData(IHost app)
-{
-    using var scope = app.Services.CreateScope();
-    var initializer = scope.ServiceProvider.GetRequiredService<DbTestDataInitializer>();
-    initializer.Initialize();
-}
