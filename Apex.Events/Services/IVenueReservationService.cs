@@ -1,8 +1,8 @@
-﻿using System;
+﻿// Apex.Events/Services/IVenueReservationService.cs
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Apex.Events.Models; // ✅ ADD THIS
-
+using Apex.Events.Models;
 
 namespace Apex.Events.Services
 {
@@ -12,9 +12,11 @@ namespace Apex.Events.Services
         Task<bool> FreeReservation(string reference);
         Task<List<VenueDto>> GetAvailableVenues(DateTime date, string eventType);
         Task<List<VenueAvailabilityDto>> GetVenueAvailability(DateTime date, string eventType);
+
+        // New method to check multiple dates
+        Task<Dictionary<DateTime, List<VenueDto>>> CheckMultipleDates(List<DateTime> dates, string eventType);
     }
 
-    // ✅ KEEP ONLY VenueAvailabilityDto here
     public class VenueAvailabilityDto
     {
         public string Code { get; set; } = string.Empty;

@@ -29,7 +29,7 @@ namespace Apex.Events.EventsList
         public string? SelectedVenueCode { get; set; }
 
         // Change the type of AvailableVenues to match the return type of GetAvailableVenues
-        public List<Apex.Events.Services.VenueDto> AvailableVenues { get; set; } = new();
+        public List<Apex.Events.Models.VenueDto> AvailableVenues { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {

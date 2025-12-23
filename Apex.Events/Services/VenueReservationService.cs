@@ -6,7 +6,6 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Apex.Events.Dto;
 using Apex.Events.Models;
 
 namespace Apex.Events.Services
@@ -22,7 +21,6 @@ namespace Apex.Events.Services
             _logger = logger;
         }
 
-        // ✅ METHOD 1: Get available venues filtered by event type (CALLS APEX.VENUES API)
         public async Task<List<VenueDto>> GetAvailableVenues(DateTime date, string eventType)
         {
             try
@@ -41,16 +39,16 @@ namespace Apex.Events.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    // Parse the JSON response
                     var jsonResponse = await response.Content.ReadAsStringAsync();
                     _logger.LogDebug($"API Response: {jsonResponse}");
 
-                    // Deserialize the response
                     var options = new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     };
 
+                    // The API should only return venues where Availability.Reservation is NULL
+                    // (meaning not already booked)
                     var availabilityList = await response.Content.ReadFromJsonAsync<List<VenueAvailabilityDto>>(options);
 
                     // Convert to VenueDto
@@ -69,20 +67,24 @@ namespace Apex.Events.Services
                         }
                     }
 
-
-                    _logger.LogInformation($"Found {venues.Count} available venues for {eventType} on {date:yyyy-MM-dd}");
+                    _logger.LogInformation($"Found {venues.Count} available (not booked) venues for {eventType} on {date:yyyy-MM-dd}");
                     return venues;
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    // This could mean:
+                    // 1. No venues are suitable for this event type
+                    // 2. All suitable venues are already booked for this date
+                    // 3. The date is outside the seeded range
+                    _logger.LogInformation($"No available venues for {eventType} on {date:yyyy-MM-dd} (404 Not Found)");
+                    return new List<VenueDto>();
                 }
                 else
                 {
-                    _logger.LogError($"Failed to get venues. Status: {response.StatusCode}");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError($"Failed to get venues. Status: {response.StatusCode}, Error: {errorContent}");
                     return new List<VenueDto>();
                 }
-            }
-            catch (HttpRequestException ex)
-            {
-                _logger.LogError(ex, "HTTP error calling Apex.Venues API");
-                return new List<VenueDto>();
             }
             catch (Exception ex)
             {
@@ -91,7 +93,6 @@ namespace Apex.Events.Services
             }
         }
 
-        // ✅ METHOD 2: Get venue availability with all details
         public async Task<List<VenueAvailabilityDto>> GetVenueAvailability(DateTime date, string eventType)
         {
             try
@@ -124,7 +125,20 @@ namespace Apex.Events.Services
             }
         }
 
-        // ✅ METHOD 3: Reserve venue
+        // Helper method to check multiple dates at once
+        public async Task<Dictionary<DateTime, List<VenueDto>>> CheckMultipleDates(List<DateTime> dates, string eventType)
+        {
+            var results = new Dictionary<DateTime, List<VenueDto>>();
+
+            foreach (var date in dates)
+            {
+                var venues = await GetAvailableVenues(date, eventType);
+                results[date] = venues;
+            }
+
+            return results;
+        }
+
         public async Task<string?> ReserveVenue(DateTime eventDate, string venueCode)
         {
             try
@@ -142,9 +156,12 @@ namespace Apex.Events.Services
                     var result = await response.Content.ReadFromJsonAsync<ReservationGetDto>();
                     return result?.Reference;
                 }
-
-                _logger.LogError($"Failed to reserve venue. Status: {response.StatusCode}");
-                return null;
+                else
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError($"Failed to reserve venue. Status: {response.StatusCode}, Error: {errorContent}");
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -153,7 +170,6 @@ namespace Apex.Events.Services
             }
         }
 
-        // ✅ METHOD 4: Free reservation
         public async Task<bool> FreeReservation(string reference)
         {
             try
