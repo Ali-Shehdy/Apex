@@ -1,11 +1,11 @@
-﻿// Apex.Events/Program.cs
-using Apex.Events.Data;
+﻿using Apex.Events.Data;
 using Apex.Events.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add logging
+// Logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
@@ -17,7 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure DbContext
+// DbContext
 builder.Services.AddDbContext<EventsDbContext>(options =>
 {
     var dbPath = Path.Combine(
@@ -26,45 +26,32 @@ builder.Services.AddDbContext<EventsDbContext>(options =>
     options.UseSqlite($"Data Source={dbPath}");
 });
 
-// Add Db Initializer
+// Db Initializer
 builder.Services.AddScoped<DbTestDataInitializer>();
 
-// Register EventTypeService with extended timeout
+// EventTypeService
 builder.Services.AddHttpClient<EventTypeService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7030/");
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.ConfigurePrimaryHttpMessageHandler(() =>
-{
-    var handler = new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-    };
-    return handler;
+    client.BaseAddress = new Uri("https://localhost:7088/");
 });
 
-// Register VenueReservationService with extended timeout
-builder.Services.AddScoped<IVenueReservationService, VenueReservationService>();
-builder.Services.AddHttpClient("VenueReservationService", client =>
+// VenueReservationService – FIXED DI issue
+builder.Services.AddScoped<IVenueReservationService>(sp =>
 {
-    client.BaseAddress = new Uri("https://localhost:7030/");
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.ConfigurePrimaryHttpMessageHandler(() =>
-{
-    var handler = new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-    };
-    return handler;
+    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+    var httpClient = httpClientFactory.CreateClient();
+    httpClient.BaseAddress = new Uri("https://localhost:7030/");
+    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+    httpClient.Timeout = TimeSpan.FromSeconds(30);
+
+    var logger = sp.GetRequiredService<ILogger<VenueReservationService>>();
+
+    return new VenueReservationService(httpClient, logger);
 });
 
 var app = builder.Build();
 
-// Create and seed database
+// Seed DB
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<EventsDbContext>();
@@ -74,7 +61,7 @@ using (var scope = app.Services.CreateScope())
     initializer.Initialize();
 }
 
-// Configure pipeline
+// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -99,13 +86,9 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 
-app.MapRazorPages();
-
-// Add specific route for test page
+// Test endpoints
 app.MapGet("/testvenues", () => Results.Redirect("/TestVenues"));
 app.MapGet("/test", () => Results.Redirect("/TestVenues"));
-
-// Health check endpoint
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
 
 // Test Apex.Venues connection on startup
@@ -113,10 +96,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
 {
     using var scope = app.Services.CreateScope();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    var config = scope.ServiceProvider.GetService<IConfiguration>();
-
     logger.LogInformation("Application started");
-    logger.LogInformation("Testing connection to Apex.Venues API...");
 
     try
     {
@@ -126,34 +106,14 @@ app.Lifetime.ApplicationStarted.Register(() =>
         client.Timeout = TimeSpan.FromSeconds(10);
 
         var response = client.GetAsync("api/eventtypes").Result;
-        if (response.IsSuccessStatusCode)
-        {
-            logger.LogInformation("✅ Successfully connected to Apex.Venues API");
-
-            // Test venue availability API
-            var testDate = DateTime.Today.AddMonths(2).ToString("yyyy-MM-dd");
-            var venueResponse = client.GetAsync($"api/availability?eventType=MET&beginDate={testDate}").Result;
-            logger.LogInformation($"Venue API test: {venueResponse.StatusCode}");
-        }
-        else
-        {
-            logger.LogWarning($"⚠️ Apex.Venues API returned status: {response.StatusCode}");
-            logger.LogWarning("Make sure Apex.Venues is running on https://localhost:7030");
-        }
+        logger.LogInformation(response.IsSuccessStatusCode
+            ? "✅ Connected to Apex.Venues API"
+            : $"⚠️ Apex.Venues API returned status: {response.StatusCode}");
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "❌ Failed to connect to Apex.Venues API");
-        logger.LogError("Please start Apex.Venues project first on port 7030");
+        logger.LogError(ex, "❌ Failed to connect to Apex.Venues API. Start Apex.Venues first on port 7030.");
     }
-
-    logger.LogInformation("=== Apex.Venues Constraints ===");
-    logger.LogInformation("• Only 30% of dates have availability (random)");
-    logger.LogInformation("• Dates start ~2 months from today");
-    logger.LogInformation("• MET events → TNDMR venue only");
-    logger.LogInformation("• CON events → CRKHL, TNDMR venues");
-    logger.LogInformation("• WED events → CRKHL, TNDMR, FDLCK venues");
-    logger.LogInformation("• PTY events → CRKHL, FDLCK venues");
 });
 
 app.Run();

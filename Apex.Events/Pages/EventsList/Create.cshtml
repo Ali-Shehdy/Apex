@@ -1,450 +1,88 @@
 ﻿@page
 @model Apex.Events.EventsList.CreateModel
 @{
-    ViewData["Title"] = "Create New Event";
+    ViewData["Title"] = "Create Event";
 }
 
-<div class="container mt-4">
-    <h1 class="text-primary mb-4">Create New Event</h1>
+<h1>Create Event</h1>
 
-    <!-- Link to Test Page -->
-    <div class="alert alert-info d-flex justify-content-between align-items-center">
-        <div>
-            <i class="bi bi-info-circle"></i>
-            Having issues with venue availability?
-            <a href="/TestVenues" class="alert-link">Test Apex.Venues API</a>
-        </div>
-        <a href="/TestVenues" class="btn btn-sm btn-outline-info">
-            <i class="bi bi-speedometer2"></i> Run Tests
-        </a>
+<form method="post">
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <!-- Event Name -->
+    <div class="mb-3">
+        <label asp-for="Event.EventName" class="form-label"></label>
+        <input asp-for="Event.EventName" class="form-control" />
+        <span asp-validation-for="Event.EventName" class="text-danger"></span>
     </div>
 
-    @if (!string.IsNullOrEmpty(Model.Message))
-    {
-        <div class="alert @(Model.AvailableVenues.Any() ? "alert-success" : "alert-warning") alert-dismissible fade show" role="alert">
-            <div class="d-flex">
-                <div class="flex-grow-1">
-                    @Html.Raw(Model.Message.Replace("\n", "<br/>"))
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- Event Type -->
+    <div class="mb-3">
+        <label asp-for="SelectedEventTypeId" class="form-label">Event Type</label>
+        <select asp-for="SelectedEventTypeId"
+                asp-items="Model.EventTypeSelectList"
+                class="form-select">
+            <option value="">-- Select Event Type --</option>
+        </select>
+        <span asp-validation-for="SelectedEventTypeId" class="text-danger"></span>
+    </div>
+
+    <!-- Event Date -->
+    <div class="mb-3">
+        <label asp-for="SelectedDate" class="form-label">Event Date</label>
+        <input asp-for="SelectedDate"
+               type="date"
+               class="form-control"
+               min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <span asp-validation-for="SelectedDate" class="text-danger"></span>
+    </div>
+
+    <!-- Load Venues Button -->
+    <button type="submit"
+            asp-page-handler="LoadVenues"
+            formnovalidate
+            class="btn btn-secondary mb-3">
+        Check Available Venues
+    </button>
+
+    <!-- Venue Selection -->
+    <div class="mb-3">
+        <label class="form-label">Available Venues</label>
+
+        @if (Model.VenuesLoaded && Model.AvailableVenues.Any())
+        {
+            <select asp-for="SelectedVenueCode" class="form-select" required>
+                <option value="">-- Select Venue --</option>
+                @foreach (var v in Model.AvailableVenues)
+                {
+                    <option value="@v.Code">@v.Name (Capacity: @v.Capacity)</option>
+                }
+            </select>
+        }
+        else
+        {
+            <select asp-for="SelectedVenueCode" class="form-select" disabled>
+                <option value="">-- No venues loaded --</option>
+            </select>
+        }
+
+        <span asp-validation-for="SelectedVenueCode" class="text-danger"></span>
+
+        @if (Model.VenuesLoaded && !Model.AvailableVenues.Any())
+        {
+            <div class="alert alert-warning mt-2">
+                No venues available for this date and event type.
             </div>
-        </div>
-    }
-
-    <div class="card shadow">
-        <div class="card-body">
-            <form method="post" id="createForm">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                <!-- Event Name -->
-                <div class="mb-3">
-                    <label asp-for="Event.EventName" class="form-label fw-bold">Event Name *</label>
-                    <input asp-for="Event.EventName" class="form-control" placeholder="Enter event name" required />
-                    <span asp-validation-for="Event.EventName" class="text-danger"></span>
-                </div>
-
-                <!-- Event Type -->
-                <div class="mb-3">
-                    <label asp-for="SelectedEventTypeId" class="form-label fw-bold">Event Type *</label>
-                    <select asp-for="SelectedEventTypeId"
-                            asp-items="Model.EventTypeSelectList"
-                            class="form-select"
-                            id="eventTypeSelect"
-                            required>
-                        <option value="">-- Select Event Type --</option>
-                    </select>
-                    <small class="form-text text-muted">
-                        MET = Meetings (TNDMR only), CON = Conference, WED = Wedding, PTY = Party
-                    </small>
-                    <span asp-validation-for="SelectedEventTypeId" class="text-danger"></span>
-                </div>
-
-                <!-- Quick Pick Dates -->
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Quick Pick Dates (2+ months ahead)</label>
-                    <div class="d-flex flex-wrap gap-2">
-                        @foreach (var date in Model.SuggestedDates.Take(5))
-                        {
-                            <button type="button"
-                                    class="btn btn-outline-primary btn-sm date-suggestion"
-                                    data-date="@date.ToString("yyyy-MM-dd")">
-                                @date.ToString("MMM dd")
-                            </button>
-                        }
-                    </div>
-                    <small class="form-text text-muted">
-                        Apex.Venues seeds availability starting ~2 months from today
-                    </small>
-                </div>
-
-                <!-- Event Date -->
-                <div class="mb-3">
-                    <label asp-for="SelectedDate" class="form-label fw-bold">Event Date *</label>
-                    <input asp-for="SelectedDate"
-                           class="form-control"
-                           type="date"
-                           id="dateInput"
-                           min="@DateTime.Today.ToString("yyyy-MM-dd")"
-                           required />
-                    <small class="form-text text-muted">
-                        Select a date at least 2 months from now for venue availability
-                    </small>
-                    <span asp-validation-for="SelectedDate" class="text-danger"></span>
-                </div>
-
-                <!-- Check Available Venues Button -->
-                <div class="mb-3">
-                    <button type="submit"
-                            asp-page-handler="LoadVenues"
-                            class="btn btn-primary"
-                            id="checkVenuesBtn">
-                        <i class="bi bi-search"></i> Check Available Venues
-                    </button>
-                    <div id="buttonStatus" class="form-text mt-1"></div>
-                </div>
-
-                <!-- Real-Time Availability Check -->
-                <div class="mb-3" id="realTimeAvailability" style="display: none;">
-                    <div class="card">
-                        <div class="card-header bg-light">
-                            <i class="bi bi-clock"></i> Real-Time Availability
-                        </div>
-                        <div class="card-body">
-                            <div id="availabilityResult">
-                                <!-- Will be populated by JavaScript -->
-                            </div>
-                            <div class="text-end small text-muted">
-                                Last checked: <span id="lastCheckedTime">--:--:--</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Venue Selection -->
-                <div class="mb-3">
-                    <label asp-for="SelectedVenueCode" class="form-label fw-bold">Select Venue *</label>
-
-                    @if (Model.HasCheckedVenues)
-                    {
-                        if (Model.AvailableVenues.Any())
-                        {
-                            <select asp-for="SelectedVenueCode"
-                                    class="form-select"
-                                    id="venueSelect"
-                                    required>
-                                <option value="">-- Select a Venue --</option>
-                                @foreach (var venue in Model.AvailableVenues)
-                                {
-                                    <option value="@venue.Code">
-                                        @venue.Name (Capacity: @venue.Capacity)
-                                    </option>
-                                }
-                            </select>
-                            <div class="text-success mt-2">
-                                <i class="bi bi-check-circle"></i>
-                                @Model.AvailableVenues.Count venue(s) available for @Model.SelectedDate.ToString("MMMM dd, yyyy")
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="alert alert-warning">
-                                <h6 class="alert-heading">
-                                    <i class="bi bi-exclamation-triangle"></i> No Venues Available
-                                </h6>
-                                <p>Possible reasons:</p>
-                                <ul class="small">
-                                    <li><strong>Already booked</strong> for another event</li>
-                                    <li><strong>Not suitable</strong> for selected event type</li>
-                                    <li><strong>Date not available</strong> in Apex.Venues (only 30% of dates)</li>
-                                    <li><strong>Outside range</strong> (dates start ~2 months from now)</li>
-                                </ul>
-                                <hr>
-                                <div class="mb-0">
-                                    <strong>Suggestions:</strong>
-                                    <ul class="small">
-                                        <li>Try different dates using "Quick Pick Dates" above</li>
-                                        <li>Check <a href="/TestVenues" class="alert-link">Test Venues page</a> for API status</li>
-                                        <li>Try dates 2-3 months from today</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <select class="form-select" disabled>
-                                <option>No venues available for selected date</option>
-                            </select>
-                        }
-                    }
-                    else
-                    {
-                        <div class="alert alert-info">
-                            <h6 class="alert-heading"><i class="bi bi-info-circle"></i> How Venue Availability Works</h6>
-                            <p class="mb-2">Apex.Venues tracks real-time availability:</p>
-                            <ul class="small mb-2">
-                                <li>When a venue is booked for a date, it becomes unavailable</li>
-                                <li>Only shows venues that are <strong>not already booked</strong></li>
-                                <li>Availability checks happen in real-time</li>
-                                <li>Double-booking is prevented automatically</li>
-                            </ul>
-                            <p class="mb-0">Click "Check Available Venues" to see what's currently available.</p>
-                        </div>
-                        <select asp-for="SelectedVenueCode" class="form-select" disabled>
-                            <option>Check available venues first</option>
-                        </select>
-                    }
-                    <span asp-validation-for="SelectedVenueCode" class="text-danger"></span>
-                </div>
-
-                <!-- Hidden field for Event.EventDate -->
-                <input type="hidden" asp-for="Event.EventDate" />
-
-                <!-- Form Actions -->
-                <div class="d-flex gap-2 mt-4">
-                    <button type="submit"
-                            class="btn btn-success"
-                            id="createEventBtn"
-                            disabled>
-                        <i class="bi bi-calendar-plus"></i> Create Event
-                    </button>
-                    <a asp-page="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Back to List
-                    </a>
-                    <a href="/TestVenues" class="btn btn-outline-info ms-auto">
-                        <i class="bi bi-tools"></i> Test API
-                    </a>
-                </div>
-            </form>
-        </div>
+        }
     </div>
-</div>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const eventTypeSelect = document.getElementById('eventTypeSelect');
-            const dateInput = document.getElementById('dateInput');
-            const checkVenuesBtn = document.getElementById('checkVenuesBtn');
-            const venueSelect = document.getElementById('venueSelect');
-            const createEventBtn = document.getElementById('createEventBtn');
-            const buttonStatus = document.getElementById('buttonStatus');
-            const realTimeAvailability = document.getElementById('realTimeAvailability');
-            const availabilityResult = document.getElementById('availabilityResult');
-            const lastCheckedTime = document.getElementById('lastCheckedTime');
+    <!-- Submit -->
+    <button type="submit" class="btn btn-primary">
+        Create Event
+    </button>
 
-            let availabilityCheckTimeout;
-            let lastEventType = '';
-            let lastDate = '';
-
-            // Set default date to first suggested date
-            if (!dateInput.value) {
-                const firstSuggestion = document.querySelector('.date-suggestion');
-                if (firstSuggestion) {
-                    const dateValue = firstSuggestion.getAttribute('data-date');
-                    dateInput.value = dateValue;
-                    updateEventDateField(dateValue);
-                }
-            }
-
-            // Update button status
-            function updateButtonStatus() {
-                const hasEventType = eventTypeSelect && eventTypeSelect.value !== '';
-                const hasDate = dateInput && dateInput.value !== '';
-
-                if (!hasEventType && !hasDate) {
-                    buttonStatus.innerHTML = '<span class="text-warning">Please select event type and date</span>';
-                } else if (!hasEventType) {
-                    buttonStatus.innerHTML = '<span class="text-warning">Please select an event type</span>';
-                } else if (!hasDate) {
-                    buttonStatus.innerHTML = '<span class="text-warning">Please select a date</span>';
-                } else {
-                    buttonStatus.innerHTML = '<span class="text-success">Ready to check venues</span>';
-                }
-
-                checkVenuesBtn.disabled = !(hasEventType && hasDate);
-
-                // Enable/disable Create Event button
-                const hasVenue = venueSelect && venueSelect.value !== '';
-                createEventBtn.disabled = !hasVenue;
-            }
-
-            // Update hidden Event.EventDate field
-            function updateEventDateField(dateString) {
-                const eventDateField = document.querySelector('[name="Event.EventDate"]');
-                if (eventDateField && dateString) {
-                    const date = new Date(dateString);
-                    eventDateField.value = date.toISOString();
-                }
-            }
-
-            // Real-time availability check
-            async function checkRealTimeAvailability() {
-                const eventType = eventTypeSelect.value;
-                const date = dateInput.value;
-
-                if (!eventType || !date) {
-                    realTimeAvailability.style.display = 'none';
-                    return;
-                }
-
-                // Only check if values changed
-                if (eventType === lastEventType && date === lastDate) {
-                    return;
-                }
-
-                lastEventType = eventType;
-                lastDate = date;
-
-                try {
-                    availabilityResult.innerHTML = `
-                        <div class="text-center">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            Checking availability...
-                        </div>
-                    `;
-                    realTimeAvailability.style.display = 'block';
-
-                    const response = await fetch(`/EventsList/Create?handler=CheckAvailability&eventType=${eventType}&date=${date}`);
-                    const result = await response.json();
-
-                    lastCheckedTime.textContent = new Date().toLocaleTimeString();
-
-                    if (result.success) {
-                        if (result.availableVenuesCount > 0) {
-                            const venuesList = result.availableVenues.map(v =>
-                                `<li><strong>${v.Name}</strong> (${v.Code}) - Capacity: ${v.Capacity}</li>`
-                            ).join('');
-
-                            availabilityResult.innerHTML = `
-                                <div class="alert alert-success">
-                                    <i class="bi bi-check-circle"></i>
-                                    <strong>${result.availableVenuesCount} venue(s) available</strong>
-                                    <ul class="mt-2 mb-0">${venuesList}</ul>
-                                </div>
-                            `;
-                        } else {
-                            availabilityResult.innerHTML = `
-                                <div class="alert alert-warning">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                    <strong>No venues available</strong>
-                                    <p class="mb-0 mt-2 small">
-                                        All suitable venues are booked for ${date}.
-                                        Try a different date or check the Test Venues page.
-                                    </p>
-                                </div>
-                            `;
-                        }
-                    } else {
-                        availabilityResult.innerHTML = `
-                            <div class="alert alert-danger">
-                                <i class="bi bi-x-circle"></i>
-                                <strong>Error checking availability</strong>
-                                <p class="mb-0 mt-2 small">${result.error || 'Unknown error'}</p>
-                            </div>
-                        `;
-                    }
-                } catch (error) {
-                    availabilityResult.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="bi bi-x-circle"></i>
-                            <strong>Network error</strong>
-                            <p class="mb-0 mt-2 small">Cannot connect to Apex.Venues API</p>
-                        </div>
-                    `;
-                    console.error('Availability check error:', error);
-                }
-            }
-
-            // Debounced availability check
-            function scheduleAvailabilityCheck() {
-                clearTimeout(availabilityCheckTimeout);
-                availabilityCheckTimeout = setTimeout(checkRealTimeAvailability, 800);
-            }
-
-            // Date suggestion buttons
-            document.querySelectorAll('.date-suggestion').forEach(button => {
-                button.addEventListener('click', function() {
-                    const dateValue = this.getAttribute('data-date');
-                    dateInput.value = dateValue;
-                    updateEventDateField(dateValue);
-                    updateButtonStatus();
-                    scheduleAvailabilityCheck();
-
-                    // Visual feedback
-                    this.classList.remove('btn-outline-primary');
-                    this.classList.add('btn-primary');
-
-                    document.querySelectorAll('.date-suggestion').forEach(btn => {
-                        if (btn !== this) {
-                            btn.classList.remove('btn-primary');
-                            btn.classList.add('btn-outline-primary');
-                        }
-                    });
-                });
-            });
-
-            // Event listeners
-            eventTypeSelect.addEventListener('change', function() {
-                updateButtonStatus();
-                scheduleAvailabilityCheck();
-            });
-
-            dateInput.addEventListener('change', function() {
-                updateEventDateField(this.value);
-                updateButtonStatus();
-                scheduleAvailabilityCheck();
-            });
-
-            if (venueSelect) {
-                venueSelect.addEventListener('change', function() {
-                    createEventBtn.disabled = !this.value;
-                });
-            }
-
-            // Auto-select first suggested date
-            const firstSuggestion = document.querySelector('.date-suggestion');
-            if (firstSuggestion && !dateInput.value) {
-                firstSuggestion.click();
-            }
-
-            // Initial setup
-            updateButtonStatus();
-            document.querySelector('[name="Event.EventName"]').focus();
-
-            // Initial availability check after a short delay
-            setTimeout(() => {
-                if (eventTypeSelect.value && dateInput.value) {
-                    scheduleAvailabilityCheck();
-                }
-            }, 1000);
-        });
-    </script>
-
-    <style>
-        #checkVenuesBtn:disabled, #createEventBtn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .card {
-            border: none;
-            border-radius: 10px;
-        }
-
-        .date-suggestion {
-            transition: all 0.2s;
-        }
-
-            .date-suggestion:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            }
-
-        .alert ul {
-            margin-bottom: 0;
-        }
-
-        #availabilityResult .alert {
-            margin-bottom: 0;
-        }
-    </style>
-}
+    <a asp-page="Index" class="btn btn-outline-secondary ms-2">
+        Cancel
+    </a>
+</form>
