@@ -1,11 +1,10 @@
-﻿using System;
+﻿using Apex.Events.Models;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Apex.Events.Models;
 
 namespace Apex.Events.Services
 {
@@ -20,98 +19,49 @@ namespace Apex.Events.Services
             _logger = logger;
         }
 
+        // Get available venues from Apex.Venues API
         public async Task<List<VenueDto>> GetAvailableVenues(DateTime date, string eventType)
         {
-            // --- Step 2a: Check if eventType is valid ---
-            if (string.IsNullOrEmpty(eventType))
-                return new List<VenueDto>();
-
-            // --- Step 2b: Use mock/fallback venues ---
-            var mockVenues = new List<VenueDto>
-    {
-        new VenueDto { Code = "CRKHL", Name = "Cork Hall", Capacity = 200 },
-        new VenueDto { Code = "TNDMR", Name = "Tandem Room", Capacity = 50 },
-        new VenueDto { Code = "FDLCK", Name = "Fieldlock Hall", Capacity = 150 }
-    };
-
-            // Optional: filter mock venues based on eventType rules
-            if (eventType == "MET") mockVenues = mockVenues.Where(v => v.Code == "TNDMR").ToList();
-            if (eventType == "CON") mockVenues = mockVenues.Where(v => v.Code == "CRKHL" || v.Code == "TNDMR").ToList();
-            if (eventType == "WED") mockVenues = mockVenues.Where(v => v.Code == "CRKHL" || v.Code == "TNDMR" || v.Code == "FDLCK").ToList();
-            if (eventType == "PTY") mockVenues = mockVenues.Where(v => v.Code == "CRKHL" || v.Code == "FDLCK").ToList();
-
-            // --- Step 2c: Optional: try real API call ---
             try
             {
-                var url = $"api/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}";
-                var response = await _httpClient.GetAsync(url);
-                if (response.IsSuccessStatusCode)
-                {
-                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                    var apiVenues = await response.Content.ReadFromJsonAsync<List<VenueAvailabilityDto>>(options);
-
-                    if (apiVenues != null)
-                    {
-                        return apiVenues.Select(a => new VenueDto
-                        {
-                            Code = a.Code,
-                            Name = a.Name,
-                            Capacity = a.Capacity,
-                            Description = a.Description
-                        }).ToList();
-                    }
-                }
-            }
-            catch
-            {
-                _logger.LogWarning("Apex.Venues API unavailable. Using mock venues.");
-            }
-
-            // Return mock venues if API fails
-            return mockVenues;
-        }
-
-
-        // ✅ IMPLEMENT interface method
-        public async Task<List<VenueAvailabilityDto>> GetVenueAvailability(DateTime date, string eventType)
-        {
-            if (string.IsNullOrEmpty(eventType))
-                return new List<VenueAvailabilityDto>();
-
-            try
-            {
-                var url = $"api/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}";
+                var url = $"api/venue/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}";
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
-                    return new List<VenueAvailabilityDto>();
+                {
+                    _logger.LogWarning($"Failed to load venues. Status: {response.StatusCode}");
+                    return new List<VenueDto>();
+                }
 
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var result = await response.Content.ReadFromJsonAsync<List<VenueAvailabilityDto>>(options);
-                return result ?? new List<VenueAvailabilityDto>();
+                var venues = await response.Content.ReadFromJsonAsync<List<VenueDto>>();
+                return venues ?? new List<VenueDto>();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting venue availability");
-                return new List<VenueAvailabilityDto>();
+                _logger.LogError(ex, "Error fetching available venues");
+                return new List<VenueDto>();
             }
         }
 
+        // Reserve a venue
         public async Task<string?> ReserveVenue(DateTime eventDate, string venueCode)
         {
             try
             {
-                var dto = new ReservationPostDto { EventDate = eventDate, VenueCode = venueCode };
-                var response = await _httpClient.PostAsJsonAsync("api/reservations", dto);
+                var request = new
+                {
+                    EventDate = eventDate,
+                    VenueCode = venueCode
+                };
 
+                var response = await _httpClient.PostAsJsonAsync("api/venue/reserve", request);
                 if (!response.IsSuccessStatusCode)
                 {
-                    var error = await response.Content.ReadAsStringAsync();
-                    _logger.LogError($"Failed to reserve venue. Status: {response.StatusCode}, Error: {error}");
+                    _logger.LogWarning($"Failed to reserve venue. Status: {response.StatusCode}");
                     return null;
                 }
 
-                var result = await response.Content.ReadFromJsonAsync<ReservationGetDto>();
+                var result = await response.Content.ReadFromJsonAsync<ReservationResponse>();
                 return result?.Reference;
             }
             catch (Exception ex)
@@ -121,11 +71,12 @@ namespace Apex.Events.Services
             }
         }
 
+        // Free a reservation
         public async Task<bool> FreeReservation(string reference)
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"api/reservations/{reference}");
+                var response = await _httpClient.DeleteAsync($"api/venue/reserve/{reference}");
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
@@ -135,14 +86,10 @@ namespace Apex.Events.Services
             }
         }
 
-        public async Task<Dictionary<DateTime, List<VenueDto>>> CheckMultipleDates(List<DateTime> dates, string eventType)
+        // DTO for reservation response
+        private class ReservationResponse
         {
-            var results = new Dictionary<DateTime, List<VenueDto>>();
-            foreach (var date in dates)
-            {
-                results[date] = await GetAvailableVenues(date, eventType);
-            }
-            return results;
+            public string? Reference { get; set; }
         }
     }
 }

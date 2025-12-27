@@ -20,9 +20,7 @@
     <!-- Event Type -->
     <div class="mb-3">
         <label asp-for="SelectedEventTypeId" class="form-label">Event Type</label>
-        <select asp-for="SelectedEventTypeId"
-                asp-items="Model.EventTypeSelectList"
-                class="form-select">
+        <select asp-for="SelectedEventTypeId" asp-items="Model.EventTypeSelectList" class="form-select">
             <option value="">-- Select Event Type --</option>
         </select>
         <span asp-validation-for="SelectedEventTypeId" class="text-danger"></span>
@@ -31,28 +29,21 @@
     <!-- Event Date -->
     <div class="mb-3">
         <label asp-for="SelectedDate" class="form-label">Event Date</label>
-        <input asp-for="SelectedDate"
-               type="date"
-               class="form-control"
-               min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+        <input asp-for="SelectedDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
         <span asp-validation-for="SelectedDate" class="text-danger"></span>
     </div>
 
     <!-- Load Venues Button -->
-    <button type="submit"
-            asp-page-handler="LoadVenues"
-            formnovalidate
-            class="btn btn-secondary mb-3">
+    <button type="submit" asp-page-handler="LoadVenues" formnovalidate class="btn btn-secondary mb-3">
         Check Available Venues
     </button>
 
     <!-- Venue Selection -->
     <div class="mb-3">
         <label class="form-label">Available Venues</label>
-
         @if (Model.VenuesLoaded && Model.AvailableVenues.Any())
         {
-            <select asp-for="SelectedVenueCode" class="form-select" required>
+            <select asp-for="SelectedVenueCode" class="form-select">
                 <option value="">-- Select Venue --</option>
                 @foreach (var v in Model.AvailableVenues)
                 {
@@ -66,7 +57,6 @@
                 <option value="">-- No venues loaded --</option>
             </select>
         }
-
         <span asp-validation-for="SelectedVenueCode" class="text-danger"></span>
 
         @if (Model.VenuesLoaded && !Model.AvailableVenues.Any())
@@ -78,11 +68,6 @@
     </div>
 
     <!-- Submit -->
-    <button type="submit" class="btn btn-primary">
-        Create Event
-    </button>
-
-    <a asp-page="Index" class="btn btn-outline-secondary ms-2">
-        Cancel
-    </a>
+    <button type="submit" class="btn btn-primary">Create Event</button>
+    <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
 </form>

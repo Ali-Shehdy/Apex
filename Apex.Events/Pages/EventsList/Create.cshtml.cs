@@ -38,7 +38,7 @@ namespace Apex.Events.EventsList
         public string SelectedVenueCode { get; set; } = string.Empty;
 
         [BindProperty]
-        public DateTime SelectedDate { get; set; }
+        public DateTime SelectedDate { get; set; } = DateTime.Today;
 
         [BindProperty]
         public string SelectedEventTypeId { get; set; } = string.Empty;
@@ -48,17 +48,17 @@ namespace Apex.Events.EventsList
 
         public List<EventTypeDTO> EventTypes { get; set; } = new();
         public List<VenueDto> AvailableVenues { get; set; } = new();
-        public SelectList EventTypeSelectList { get; set; }
+        public SelectList EventTypeSelectList { get; set; } = new SelectList(new List<EventTypeDTO>(), "Id", "Title");
 
         public async Task<IActionResult> OnGetAsync()
         {
-            await LoadEventTypes();
+            await LoadEventTypesAsync();
             return Page();
         }
 
         public async Task<IActionResult> OnPostLoadVenuesAsync()
         {
-            await LoadEventTypes();
+            await LoadEventTypesAsync();
 
             if (string.IsNullOrEmpty(SelectedEventTypeId))
             {
@@ -68,15 +68,11 @@ namespace Apex.Events.EventsList
 
             if (SelectedDate < DateTime.Today)
             {
-                ModelState.AddModelError("", "Event date must be today or in the future.");
+                ModelState.AddModelError("", "Event date must be today or later.");
                 return Page();
             }
 
-            AvailableVenues = await _venueReservationService.GetAvailableVenues(
-                SelectedDate,
-                SelectedEventTypeId
-            );
-
+            AvailableVenues = await _venueReservationService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
             VenuesLoaded = true;
 
             return Page();
@@ -84,7 +80,8 @@ namespace Apex.Events.EventsList
 
         public async Task<IActionResult> OnPostAsync()
         {
-            await LoadEventTypes();
+            await LoadEventTypesAsync();
+
             if (!ModelState.IsValid)
             {
                 foreach (var key in ModelState.Keys)
@@ -102,16 +99,25 @@ namespace Apex.Events.EventsList
             {
                 ModelState.AddModelError(nameof(SelectedVenueCode), "Please select a venue.");
                 VenuesLoaded = true;
-                AvailableVenues = await _venueReservationService.GetAvailableVenues(
-                    SelectedDate,
-                    SelectedEventTypeId
-                );
+                AvailableVenues = await _venueReservationService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
                 return Page();
             }
 
             Event.EventDate = SelectedDate;
             Event.EventTypeId = SelectedEventTypeId;
             Event.VenueCode = SelectedVenueCode;
+
+            // Reserve venue
+            var reference = await _venueReservationService.ReserveVenue(SelectedDate, SelectedVenueCode);
+            if (reference == null)
+            {
+                ModelState.AddModelError("", "Failed to reserve the selected venue.");
+                VenuesLoaded = true;
+                AvailableVenues = await _venueReservationService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
+                return Page();
+            }
+
+            Event.ReservationReference = reference;
 
             _context.Events.Add(Event);
             await _context.SaveChangesAsync();
@@ -120,8 +126,7 @@ namespace Apex.Events.EventsList
             return RedirectToPage("./Index");
         }
 
-
-        private async Task LoadEventTypes()
+        private async Task LoadEventTypesAsync()
         {
             try
             {
