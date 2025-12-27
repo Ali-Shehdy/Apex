@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<EventsDbContext>(options =>
 {
     var dbPath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
         "events.db");
     options.UseSqlite($"Data Source={dbPath}");
 });

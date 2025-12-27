@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Apex.Events.Migrations
 {
     [DbContext(typeof(EventsDbContext))]
-    [Migration("20251127201455_UpdateGuestBookingTable")]
-    partial class UpdateGuestBookingTable
+    [Migration("20251227011404_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,31 +33,18 @@ namespace Apex.Events.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("EventType")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("EventTypeId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("ReservationReference")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("VenueCode")
                         .HasColumnType("TEXT");
 
                     b.HasKey("EventId");
 
                     b.ToTable("Events");
-
-                    b.HasData(
-                        new
-                        {
-                            EventId = 1,
-                            EventDate = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EventName = "Sample Event 1",
-                            EventType = 0
-                        },
-                        new
-                        {
-                            EventId = 2,
-                            EventDate = new DateTime(2024, 1, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EventName = "Sample Event 2",
-                            EventType = 1
-                        });
                 });
 
             modelBuilder.Entity("Apex.Events.Data.Guest", b =>
@@ -81,22 +68,6 @@ namespace Apex.Events.Migrations
                     b.HasKey("GuestId");
 
                     b.ToTable("Guests");
-
-                    b.HasData(
-                        new
-                        {
-                            GuestId = 1,
-                            Email = "john@example.com",
-                            FirstName = "John",
-                            LastName = "Doe"
-                        },
-                        new
-                        {
-                            GuestId = 2,
-                            Email = "jane@example.com",
-                            FirstName = "Jane",
-                            LastName = "Smith"
-                        });
                 });
 
             modelBuilder.Entity("Apex.Events.Data.GuestBooking", b =>
@@ -121,22 +92,6 @@ namespace Apex.Events.Migrations
                     b.HasIndex("GuestId");
 
                     b.ToTable("GuestBookings");
-
-                    b.HasData(
-                        new
-                        {
-                            GuestBookingId = 1,
-                            BookingDate = new DateTime(2024, 5, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EventId = 1,
-                            GuestId = 1
-                        },
-                        new
-                        {
-                            GuestBookingId = 2,
-                            BookingDate = new DateTime(2024, 5, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            EventId = 2,
-                            GuestId = 2
-                        });
                 });
 
             modelBuilder.Entity("Apex.Events.Data.Staff", b =>
@@ -145,11 +100,19 @@ namespace Apex.Events.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

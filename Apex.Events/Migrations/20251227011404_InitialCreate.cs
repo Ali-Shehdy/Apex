@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace Apex.Events.Migrations
 {
     /// <inheritdoc />
@@ -21,8 +19,9 @@ namespace Apex.Events.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     EventName = table.Column<string>(type: "TEXT", nullable: false),
                     EventDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    EventType = table.Column<int>(type: "INTEGER", nullable: false),
-                    ReservationReference = table.Column<string>(type: "TEXT", nullable: true)
+                    EventTypeId = table.Column<string>(type: "TEXT", nullable: true),
+                    ReservationReference = table.Column<string>(type: "TEXT", nullable: true),
+                    VenueCode = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -52,6 +51,8 @@ namespace Apex.Events.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     FirstName = table.Column<string>(type: "TEXT", nullable: false),
                     LastName = table.Column<string>(type: "TEXT", nullable: false),
+                    Email = table.Column<string>(type: "TEXT", nullable: false),
+                    Phone = table.Column<string>(type: "TEXT", nullable: false),
                     Role = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -110,24 +111,6 @@ namespace Apex.Events.Migrations
                         principalTable: "Staffs",
                         principalColumn: "StaffId",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "Events",
-                columns: new[] { "EventId", "EventDate", "EventName", "EventType", "ReservationReference" },
-                values: new object[,]
-                {
-                    { 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sample Event 1", 0, null },
-                    { 2, new DateTime(2024, 1, 2, 0, 0, 0, 0, DateTimeKind.Unspecified), "Sample Event 2", 1, null }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Guests",
-                columns: new[] { "GuestId", "Email", "FirstName", "LastName" },
-                values: new object[,]
-                {
-                    { 1, "john@example.com", "John", "Doe" },
-                    { 2, "jane@example.com", "Jane", "Smith" }
                 });
 
             migrationBuilder.CreateIndex(
