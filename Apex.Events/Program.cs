@@ -2,6 +2,7 @@
 using Apex.Events.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Net.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,9 +39,16 @@ builder.Services.AddHttpClient<EventTypeService>(client =>
 // VenueReservationService – FIXED DI issue
 builder.Services.AddScoped<IVenueReservationService>(sp =>
 {
-    var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-    var httpClient = httpClientFactory.CreateClient();
-    httpClient.BaseAddress = new Uri("https://localhost:7030/");
+    var handler = new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = (message, _, _, errors) =>
+            message?.RequestUri?.Host is "localhost" or "127.0.0.1"
+                ? true
+                : errors == SslPolicyErrors.None
+    };
+
+    var httpClient = new HttpClient(handler);
+    httpClient.BaseAddress = new Uri("https://localhost:7088/");
     httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     httpClient.Timeout = TimeSpan.FromSeconds(30);
 
@@ -48,6 +56,7 @@ builder.Services.AddScoped<IVenueReservationService>(sp =>
 
     return new VenueReservationService(httpClient, logger);
 });
+
 
 var app = builder.Build();
 
@@ -102,7 +111,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
     {
         var clientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
         var client = clientFactory.CreateClient();
-        client.BaseAddress = new Uri("https://localhost:7030/");
+        client.BaseAddress = new Uri("https://localhost:7088/");
         client.Timeout = TimeSpan.FromSeconds(10);
 
         var response = client.GetAsync("api/eventtypes").Result;
@@ -112,7 +121,7 @@ app.Lifetime.ApplicationStarted.Register(() =>
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "❌ Failed to connect to Apex.Venues API. Start Apex.Venues first on port 7030.");
+        logger.LogError(ex, "❌ Failed to connect to Apex.Venues API. Start Apex.Venues first on port 7088.");
     }
 });
 

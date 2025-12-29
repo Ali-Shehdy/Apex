@@ -76,7 +76,7 @@ namespace Apex.Events.EventsList
                 // Free old reservation if exists
                 if (!string.IsNullOrEmpty(existingEvent.ReservationReference))
                 {
-                    await _venueReservationService.FreeReservation(existingEvent.ReservationReference);
+                    //await _venueReservationService.FreeReservation(existingEvent.ReservationReference);
                 }
 
                 // Make new reservation

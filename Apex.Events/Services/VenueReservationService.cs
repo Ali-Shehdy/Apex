@@ -1,4 +1,4 @@
-﻿using Apex.Events.Models;
+﻿using EventsVenueDto = Apex.Events.Models.VenueDto;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -20,26 +20,26 @@ namespace Apex.Events.Services
         }
 
         // Get available venues from Apex.Venues API
-        public async Task<List<VenueDto>> GetAvailableVenues(DateTime date, string eventType)
+        public async Task<List<EventsVenueDto>> GetAvailableVenues(DateTime date, string eventType)
         {
             try
             {
-                var url = $"api/venue/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}";
+                var url = $"api/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}";
                 var response = await _httpClient.GetAsync(url);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogWarning($"Failed to load venues. Status: {response.StatusCode}");
-                    return new List<VenueDto>();
+                    return new List<EventsVenueDto>();
                 }
 
-                var venues = await response.Content.ReadFromJsonAsync<List<VenueDto>>();
-                return venues ?? new List<VenueDto>();
+                var venues = await response.Content.ReadFromJsonAsync<List<EventsVenueDto>>();
+                return venues ?? new List<EventsVenueDto>();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching available venues");
-                return new List<VenueDto>();
+                return new List<EventsVenueDto>();
             }
         }
 
@@ -54,7 +54,7 @@ namespace Apex.Events.Services
                     VenueCode = venueCode
                 };
 
-                var response = await _httpClient.PostAsJsonAsync("api/venue/reserve", request);
+                var response = await _httpClient.PostAsJsonAsync("api/reservations", request);
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogWarning($"Failed to reserve venue. Status: {response.StatusCode}");
@@ -76,7 +76,7 @@ namespace Apex.Events.Services
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"api/venue/reserve/{reference}");
+                var response = await _httpClient.DeleteAsync($"api/reservations/{reference}");
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)

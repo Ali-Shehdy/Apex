@@ -489,6 +489,12 @@ namespace Apex.Venues.Data.Migrations
                         },
                         new
                         {
+                            Date = new DateTime(2027, 1, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            VenueCode = "FDLCK",
+                            CostPerHour = 51.789999999999999
+                        },
+                        new
+                        {
                             Date = new DateTime(2026, 4, 9, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             VenueCode = "TNDMR",
                             CostPerHour = 112.63

@@ -1,73 +1,62 @@
 ﻿@page
-@model Apex.Events.EventsList.CreateModel
-@{
-    ViewData["Title"] = "Create Event";
-}
+@model Apex.Events.Pages.EventsList.CreateModel
 
-<h1>Create Event</h1>
+<h2>Create Event</h2>
 
 <form method="post">
 
-    <div asp-validation-summary="All" class="text-danger"></div>
-
-    <!-- Event Name -->
     <div class="mb-3">
         <label asp-for="Event.EventName" class="form-label"></label>
         <input asp-for="Event.EventName" class="form-control" />
         <span asp-validation-for="Event.EventName" class="text-danger"></span>
     </div>
 
-    <!-- Event Type -->
     <div class="mb-3">
-        <label asp-for="SelectedEventTypeId" class="form-label">Event Type</label>
-        <select asp-for="SelectedEventTypeId" asp-items="Model.EventTypeSelectList" class="form-select">
+        <label class="form-label">Event Type</label>
+        <select asp-for="SelectedEventTypeId"
+                asp-items="Model.EventTypeSelectList"
+                class="form-select">
             <option value="">-- Select Event Type --</option>
         </select>
-        <span asp-validation-for="SelectedEventTypeId" class="text-danger"></span>
     </div>
 
-    <!-- Event Date -->
     <div class="mb-3">
-        <label asp-for="SelectedDate" class="form-label">Event Date</label>
-        <input asp-for="SelectedDate" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="SelectedDate" class="text-danger"></span>
+        <label class="form-label">Event Date</label>
+        <input asp-for="SelectedDate" type="date" class="form-control" />
     </div>
 
-    <!-- Load Venues Button -->
-    <button type="submit" asp-page-handler="LoadVenues" formnovalidate class="btn btn-secondary mb-3">
-        Check Available Venues
+    <button type="submit"
+            asp-page-handler="LoadVenues"
+            class="btn btn-secondary">
+        Load Available Venues
     </button>
 
-    <!-- Venue Selection -->
-    <div class="mb-3">
-        <label class="form-label">Available Venues</label>
-        @if (Model.VenuesLoaded && Model.AvailableVenues.Any())
-        {
+    @if (Model.VenuesLoaded)
+    {
+        <hr />
+
+        <div class="mb-3">
+            <label class="form-label">Available Venues</label>
+
             <select asp-for="SelectedVenueCode" class="form-select">
                 <option value="">-- Select Venue --</option>
-                @foreach (var v in Model.AvailableVenues)
+
+                @foreach (var venue in Model.AvailableVenues)
                 {
-                    <option value="@v.Code">@v.Name (Capacity: @v.Capacity)</option>
+                    <option value="@venue.Code">
+                        @venue.Name (Capacity: @venue.Capacity)
+                    </option>
                 }
             </select>
-        }
-        else
-        {
-            <select asp-for="SelectedVenueCode" class="form-select" disabled>
-                <option value="">-- No venues loaded --</option>
-            </select>
-        }
-        <span asp-validation-for="SelectedVenueCode" class="text-danger"></span>
+        </div>
 
-        @if (Model.VenuesLoaded && !Model.AvailableVenues.Any())
-        {
-            <div class="alert alert-warning mt-2">
-                No venues available for this date and event type.
-            </div>
-        }
-    </div>
+        <button type="submit" class="btn btn-primary">
+            Create Event
+        </button>
+    }
 
-    <!-- Submit -->
-    <button type="submit" class="btn btn-primary">Create Event</button>
-    <a asp-page="Index" class="btn btn-outline-secondary ms-2">Cancel</a>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
