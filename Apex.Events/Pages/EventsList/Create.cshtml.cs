@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Apex.Events.Models;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +9,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Apex.Events.Data;
-using Apex.Events.Models;
 using Apex.Events.Services;
 
 namespace Apex.Events.Pages.EventsList
@@ -113,26 +114,78 @@ namespace Apex.Events.Pages.EventsList
         {
             await LoadEventTypes();
 
-            if (!ModelState.IsValid)
-                return Page();
+            // Basic validation (more explicit than relying on ModelState alone)
+            if (string.IsNullOrWhiteSpace(SelectedEventTypeId))
+                ModelState.AddModelError("", "Please select an event type.");
 
-            if (string.IsNullOrEmpty(SelectedVenueCode))
-            {
+            if (SelectedDate < DateTime.Today)
+                ModelState.AddModelError("", "Event date cannot be in the past.");
+
+            if (string.IsNullOrWhiteSpace(SelectedVenueCode))
                 ModelState.AddModelError("", "Please select a venue.");
+
+            if (string.IsNullOrWhiteSpace(Event.EventName))
+                ModelState.AddModelError("", "Event name is required.");
+
+            // If invalid, keep venues visible + repopulate dropdown
+            if (!ModelState.IsValid)
+            {
                 VenuesLoaded = true;
+
+                AvailableVenues = await _venueService
+                    .GetAvailableVenues(SelectedDate, SelectedEventTypeId);
+
                 return Page();
             }
 
+            // ✅ Reserve venue in Apex.Venues first (requirement)
+            var reference = await _venueService.ReserveVenue(SelectedDate, SelectedVenueCode);
+
+            if (string.IsNullOrWhiteSpace(reference))
+            {
+                ModelState.AddModelError("", "Failed to reserve venue. Please try another venue/date.");
+
+                VenuesLoaded = true;
+                AvailableVenues = await _venueService
+                    .GetAvailableVenues(SelectedDate, SelectedEventTypeId);
+
+                return Page();
+            }
+
+            // Save event locally
             Event.EventDate = SelectedDate;
             Event.EventTypeId = SelectedEventTypeId;
             Event.VenueCode = SelectedVenueCode;
+            Event.ReservationReference = reference;
+
+            // If your Event model has a field for the reservation reference, store it:
+            // Event.VenueReservationReference = reference;
 
             _context.Events.Add(Event);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // If DB save fails, free the reservation so you don't leak reservations
+                await _venueService.FreeReservation(reference);
+
+                _logger.LogError(ex, "Failed to save event");
+                ModelState.AddModelError("", "Database error while saving event.");
+
+                VenuesLoaded = true;
+                AvailableVenues = await _venueService
+                    .GetAvailableVenues(SelectedDate, SelectedEventTypeId);
+
+                return Page();
+            }
 
             TempData["Success"] = "Event created successfully.";
             return RedirectToPage("./Index");
         }
+
 
         // =======================
         // HELPERS

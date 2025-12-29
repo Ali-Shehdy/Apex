@@ -10,7 +10,7 @@ namespace Apex.Events.Data
         {
         }
 
-        public DbSet<Event> Events { get; set; }
+        public DbSet<Event> Events { get; set; } = default!;
         public DbSet<Guest> Guests { get; set; }
         public DbSet<GuestBooking> GuestBookings { get; set; }
         public DbSet<Staff> Staffs { get; set; }
