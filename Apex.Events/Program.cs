@@ -37,25 +37,22 @@ builder.Services.AddHttpClient<EventTypeService>(client =>
 });
 
 // VenueReservationService – FIXED DI issue
-builder.Services.AddScoped<IVenueReservationService>(sp =>
+builder.Services.AddHttpClient<IVenueReservationService, VenueReservationService>((sp, client) =>
 {
-    var handler = new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback = (message, _, _, errors) =>
-            message?.RequestUri?.Host is "localhost" or "127.0.0.1"
-                ? true
-                : errors == SslPolicyErrors.None
-    };
-
-    var httpClient = new HttpClient(handler);
-    httpClient.BaseAddress = new Uri("https://localhost:7088/");
-    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-    httpClient.Timeout = TimeSpan.FromSeconds(30);
-
-    var logger = sp.GetRequiredService<ILogger<VenueReservationService>>();
-
-    return new VenueReservationService(httpClient, logger);
+    var baseUrl = builder.Configuration["VenuesApi:BaseUrl"];
+    client.BaseAddress = new Uri(baseUrl!);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+})
+.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+{
+    ServerCertificateCustomValidationCallback = (message, _, _, errors) =>
+        message?.RequestUri?.Host is "localhost" or "127.0.0.1"
+            ? true
+            : errors == SslPolicyErrors.None
 });
+
+
+
 
 
 var app = builder.Build();
@@ -101,28 +98,28 @@ app.MapGet("/test", () => Results.Redirect("/TestVenues"));
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
 
 // Test Apex.Venues connection on startup
-app.Lifetime.ApplicationStarted.Register(() =>
-{
-    using var scope = app.Services.CreateScope();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation("Application started");
+//app.Lifetime.ApplicationStarted.Register(() =>
+//{
+//    using var scope = app.Services.CreateScope();
+//    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+//    logger.LogInformation("Application started");
 
-    try
-    {
-        var clientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
-        var client = clientFactory.CreateClient();
-        client.BaseAddress = new Uri("https://localhost:7088/");
-        client.Timeout = TimeSpan.FromSeconds(10);
+//    try
+//    {
+//        var clientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
+//        var client = clientFactory.CreateClient();
+//        client.BaseAddress = new Uri("https://localhost:7088/");
+//        client.Timeout = TimeSpan.FromSeconds(10);
 
-        var response = client.GetAsync("api/eventtypes").Result;
-        logger.LogInformation(response.IsSuccessStatusCode
-            ? "✅ Connected to Apex.Venues API"
-            : $"⚠️ Apex.Venues API returned status: {response.StatusCode}");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "❌ Failed to connect to Apex.Venues API. Start Apex.Venues first on port 7088.");
-    }
-});
+//        var response = client.GetAsync("api/eventtypes").Result;
+//        logger.LogInformation(response.IsSuccessStatusCode
+//            ? "✅ Connected to Apex.Venues API"
+//            : $"⚠️ Apex.Venues API returned status: {response.StatusCode}");
+//    }
+//    catch (Exception ex)
+//    {
+//        logger.LogError(ex, "❌ Failed to connect to Apex.Venues API. Start Apex.Venues first on port 7088.");
+//    }
+//});
 
 app.Run();

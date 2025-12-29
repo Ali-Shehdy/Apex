@@ -1,4 +1,4 @@
-﻿using EventsVenueDto = Apex.Events.Models.VenueDto;
+﻿﻿using EventsVenueDto = Apex.Events.Models.VenueDto;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,26 +22,27 @@ namespace Apex.Events.Services
         // Get available venues from Apex.Venues API
         public async Task<List<EventsVenueDto>> GetAvailableVenues(DateTime date, string eventType)
         {
-            try
-            {
-                var url = $"api/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}";
-                var response = await _httpClient.GetAsync(url);
+            // Workaround for Apex.Venues date/time filtering bug:
+            // include endDate = next day so times within the selected day are included.
+            var endDate = date.Date.AddDays(1);
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    _logger.LogWarning($"Failed to load venues. Status: {response.StatusCode}");
-                    return new List<EventsVenueDto>();
-                }
+            var url =
+                $"api/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
 
-                var venues = await response.Content.ReadFromJsonAsync<List<EventsVenueDto>>();
-                return venues ?? new List<EventsVenueDto>();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching available venues");
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
                 return new List<EventsVenueDto>();
-            }
+
+            var venues = await response.Content.ReadFromJsonAsync<List<EventsVenueDto>>()
+                         ?? new List<EventsVenueDto>();
+
+            // Keep only venues for the selected day
+            return venues.Where(v => v.Date.Date == date.Date).ToList();
         }
+
+
+
 
         // Reserve a venue
         public async Task<string?> ReserveVenue(DateTime eventDate, string venueCode)

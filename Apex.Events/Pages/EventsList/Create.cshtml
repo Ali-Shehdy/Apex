@@ -54,6 +54,15 @@
             Create Event
         </button>
     }
+    <div asp-validation-summary="All" class="text-danger"></div>
+    @if (Model.VenuesLoaded)
+    {
+        <div class="alert alert-info">
+            Debug: EventType=<b>@Model.SelectedEventTypeId</b>,
+            Date=<b>@Model.SelectedDate.ToString("yyyy-MM-dd")</b>,
+            Venues=<b>@(Model.AvailableVenues?.Count ?? 0)</b>
+        </div>
+    }
 
 </form>
 

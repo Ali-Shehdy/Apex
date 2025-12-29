@@ -74,6 +74,10 @@ namespace Apex.Events.Pages.EventsList
 
         public async Task<IActionResult> OnPostLoadVenuesAsync()
         {
+            // We are only loading venues; user hasn't selected a venue yet
+            ModelState.Remove(nameof(SelectedVenueCode));
+            ModelState.Remove("Event.VenueCode"); // extra safety if Event.VenueCode is [Required]
+
             await LoadEventTypes();
 
             if (string.IsNullOrEmpty(SelectedEventTypeId))

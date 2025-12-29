@@ -21,5 +21,6 @@ namespace Apex.Events.Services
         /// Releases a reservation by reference.
         /// </summary>
         Task<bool> FreeReservation(string reference);
+
     }
 }
