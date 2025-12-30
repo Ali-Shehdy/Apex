@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Apex.Events.Data;          // ✅ EF entity Event + DbContext
-using Apex.Events.Models;        // ✅ DTOs: EventTypeDTO, VenueDto
+using Apex.Events.Data;          // EF entity Event + DbContext
+using Apex.Events.Models;        // DTOs: EventTypeDTO, VenueDto
 using Apex.Events.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -36,7 +36,7 @@ namespace Apex.Events.Pages.EventsList
         // =======================
 
         [BindProperty]
-        public Event Event { get; set; } = new(); // ✅ IMPORTANT: Apex.Events.Data.Event
+        public Event Event { get; set; } = new();
 
         [BindProperty]
         public string SelectedEventTypeId { get; set; } = string.Empty;
@@ -47,6 +47,8 @@ namespace Apex.Events.Pages.EventsList
         [BindProperty]
         public string SelectedVenueCode { get; set; } = string.Empty;
 
+        // STEP A: bind this so the dropdown & debug do not disappear after a failed POST
+        [BindProperty]
         public bool VenuesLoaded { get; set; }
 
         // =======================
@@ -73,26 +75,31 @@ namespace Apex.Events.Pages.EventsList
 
         public async Task<IActionResult> OnPostLoadVenuesAsync()
         {
-            // We're not creating yet; don't validate SelectedVenueCode as required here.
+            TempData["DebugCreate"] = "STEP LV1: OnPostLoadVenues fired ✅";
+
+            // Not creating yet; do not require venue selection here
             ModelState.Remove(nameof(SelectedVenueCode));
 
             await LoadEventTypes();
 
             if (string.IsNullOrWhiteSpace(SelectedEventTypeId))
             {
+                TempData["DebugCreate"] = "STEP LV2: Missing event type ❌";
                 ModelState.AddModelError("", "Please select an event type.");
                 return Page();
             }
 
             if (SelectedDate.Date < DateTime.Today)
             {
+                TempData["DebugCreate"] = "STEP LV3: Date in the past ❌";
                 ModelState.AddModelError("", "Event date cannot be in the past.");
                 return Page();
             }
 
             AvailableVenues = await _venueService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
-
             VenuesLoaded = true;
+
+            TempData["DebugCreate"] = $"STEP LV4: Loaded venues ✅ Count={AvailableVenues.Count}";
 
             if (!AvailableVenues.Any())
             {
@@ -108,20 +115,25 @@ namespace Apex.Events.Pages.EventsList
 
         public async Task<IActionResult> OnPostAsync()
         {
+            TempData["DebugCreate"] = "STEP 1: Entered OnPostAsync ✅";
+
             _logger.LogInformation(
-                "🔥 OnPostAsync fired. Name={Name}, Type={Type}, Date={Date}, Venue={Venue}",
+                "Create POST: Name={Name}, Type={Type}, Date={Date}, Venue={Venue}",
                 Event?.EventName,
                 SelectedEventTypeId,
                 SelectedDate.ToString("yyyy-MM-dd"),
                 SelectedVenueCode
             );
 
-            TempData["DebugCreate"] =
-                $"POST fired: {Event?.EventName} / {SelectedEventTypeId} / {SelectedDate:yyyy-MM-dd} / {SelectedVenueCode}";
-
             await LoadEventTypes();
 
-            // Basic checks
+            // STEP 2: Ignore binding-time validation errors for fields we set server-side
+            ModelState.Remove("Event.EventTypeId");
+            ModelState.Remove("Event.VenueCode");
+            ModelState.Remove("Event.EventDate");
+            ModelState.Remove("Event.ReservationReference");
+
+            // Manual validation (source of truth = Selected* fields)
             if (string.IsNullOrWhiteSpace(Event?.EventName))
                 ModelState.AddModelError("", "Event name is required.");
 
@@ -136,28 +148,33 @@ namespace Apex.Events.Pages.EventsList
 
             if (!ModelState.IsValid)
             {
-                // keep dropdown visible and filled
+                TempData["DebugCreate"] = "STEP 2: ModelState invalid ❌ (returned Page)";
                 VenuesLoaded = true;
                 AvailableVenues = await _venueService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
                 return Page();
             }
+
+            TempData["DebugCreate"] = "STEP 3: Valid ✅ About to reserve venue";
 
             // 1) Reserve in Apex.Venues first
             var reference = await _venueService.ReserveVenue(SelectedDate, SelectedVenueCode);
 
             if (string.IsNullOrWhiteSpace(reference))
             {
+                TempData["DebugCreate"] = "STEP 4: ReserveVenue FAILED ❌ (returned Page)";
                 ModelState.AddModelError("", "Failed to reserve venue. Please choose another venue/date.");
                 VenuesLoaded = true;
                 AvailableVenues = await _venueService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
                 return Page();
             }
 
+            TempData["DebugCreate"] = $"STEP 5: Reserve OK ✅ Ref={reference}. About to save event";
+
             // 2) Save in Apex.Events
             Event.EventDate = SelectedDate.Date;
             Event.EventTypeId = SelectedEventTypeId;
             Event.VenueCode = SelectedVenueCode;
-            Event.ReservationReference = reference; // ✅ this links your event to Venues reservation
+            Event.ReservationReference = reference;
 
             _context.Events.Add(Event);
 
@@ -167,7 +184,7 @@ namespace Apex.Events.Pages.EventsList
             }
             catch (Exception ex)
             {
-                // Roll back the reservation if local save fails
+                TempData["DebugCreate"] = "STEP 6: SaveChanges FAILED ❌ (returned Page)";
                 _logger.LogError(ex, "DB save failed; freeing reservation {Ref}", reference);
                 await _venueService.FreeReservation(reference);
 
@@ -178,6 +195,8 @@ namespace Apex.Events.Pages.EventsList
             }
 
             TempData["Success"] = "Event created successfully.";
+            TempData["DebugCreate"] = "STEP 7: Saved ✅ Redirecting to Index";
+
             return RedirectToPage("./Index");
         }
 

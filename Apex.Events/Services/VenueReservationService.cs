@@ -20,6 +20,8 @@ namespace Apex.Events.Services
             _logger = logger;
         }
 
+       
+
         public async Task<List<VenueDto>> GetAvailableVenues(DateTime date, string eventType)
         {
             try
@@ -56,7 +58,7 @@ namespace Apex.Events.Services
         {
             try
             {
-                var request = new
+                var request = new ReservationPostDto
                 {
                     EventDate = eventDate.Date,
                     VenueCode = venueCode
@@ -67,7 +69,7 @@ namespace Apex.Events.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    _logger.LogWarning("Reserve failed: {Status} Body: {Body}", response.StatusCode, body);
+                    _logger.LogWarning("❌ Reserve failed. Status={Status}. Body={Body}", response.StatusCode, body);
                     return null;
                 }
 

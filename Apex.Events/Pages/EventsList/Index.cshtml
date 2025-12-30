@@ -7,6 +7,13 @@
 
 <h1 class="mb-4">Events List</h1>
 
+@if (TempData["DebugCreate"] != null)
+{
+    <div class="alert alert-warning">
+        @TempData["DebugCreate"]
+    </div>
+}
+
 @if (TempData["Success"] != null)
 {
     <div class="alert alert-success">
@@ -51,14 +58,9 @@ else
                         <td>@item.ReservationReference</td>
                         <td>
                             <div class="btn-group btn-group-sm">
-                                <a asp-page="./Edit" asp-route-id="@item.EventId"
-                                   class="btn btn-warning">Edit</a>
-
-                                <a asp-page="./Details" asp-route-id="@item.EventId"
-                                   class="btn btn-info">Details</a>
-
-                                <a asp-page="./Delete" asp-route-id="@item.EventId"
-                                   class="btn btn-danger">Delete</a>
+                                <a asp-page="./Edit" asp-route-id="@item.EventId" class="btn btn-warning">Edit</a>
+                                <a asp-page="./Details" asp-route-id="@item.EventId" class="btn btn-info">Details</a>
+                                <a asp-page="./Delete" asp-route-id="@item.EventId" class="btn btn-danger">Delete</a>
                             </div>
                         </td>
                     </tr>

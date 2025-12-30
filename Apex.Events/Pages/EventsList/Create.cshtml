@@ -8,17 +8,18 @@
     <div class="alert alert-warning">@TempData["DebugCreate"]</div>
 }
 
+<!-- ================= FORM 1: LOAD VENUES ================= -->
+<form method="post" asp-page-handler="LoadVenues" class="mb-4">
 
-<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="mb-3">
-        <label asp-for="Event.EventName" class="form-label"></label>
+        <label asp-for="Event.EventName"></label>
         <input asp-for="Event.EventName" class="form-control" />
-        <span asp-validation-for="Event.EventName" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Event Type</label>
+        <label>Event Type</label>
         <select asp-for="SelectedEventTypeId"
                 asp-items="Model.EventTypeSelectList"
                 class="form-select">
@@ -27,26 +28,34 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">Event Date</label>
+        <label>Event Date</label>
         <input asp-for="SelectedDate" type="date" class="form-control" />
     </div>
 
-    <button type="submit"
-            asp-page-handler="LoadVenues"
-            class="btn btn-secondary">
+    <button type="submit" class="btn btn-secondary">
         Load Available Venues
     </button>
+</form>
 
-    @if (Model.VenuesLoaded)
-    {
-        <hr />
+@if (Model.VenuesLoaded)
+{
+    <hr />
+
+    <!-- ================= FORM 2: CREATE EVENT ================= -->
+        
+
+    <form method="post" asp-page-handler="">
+        <div asp-validation-summary="All" class="text-danger"></div>
+
+        <input type="hidden" asp-for="Event.EventName" />
+        <input type="hidden" asp-for="SelectedEventTypeId" />
+        <input type="hidden" asp-for="SelectedDate" />
+        <input type="hidden" asp-for="VenuesLoaded" />
 
         <div class="mb-3">
-            <label class="form-label">Available Venues</label>
-
+            <label>Available Venues</label>
             <select asp-for="SelectedVenueCode" class="form-select">
                 <option value="">-- Select Venue --</option>
-
                 @foreach (var venue in Model.AvailableVenues)
                 {
                     <option value="@venue.Code">
@@ -59,20 +68,14 @@
         <button type="submit" class="btn btn-primary">
             Create Event
         </button>
-    }
-    <div asp-validation-summary="All" class="text-danger"></div>
 
-    @if (Model.VenuesLoaded)
-    {
-        <div class="alert alert-info">
-            Debug: EventType=<b>@Model.SelectedEventTypeId</b>,
-            Date=<b>@Model.SelectedDate.ToString("yyyy-MM-dd")</b>,
-            Venues=<b>@(Model.AvailableVenues?.Count ?? 0)</b>
+        <div class="alert alert-info mt-3">
+            Debug:
+            EventType=<b>@Model.SelectedEventTypeId</b>,
+            Date=<b>@Model.SelectedDate:yyyy-MM-dd</b>,
+            Venues=<b>@Model.AvailableVenues.Count</b>,
+            SelectedVenue=<b>@Model.SelectedVenueCode</b>
         </div>
-    }
 
-</form>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    </form>
 }
