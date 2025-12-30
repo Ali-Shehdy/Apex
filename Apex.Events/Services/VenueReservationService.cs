@@ -1,10 +1,11 @@
-﻿﻿using EventsVenueDto = Apex.Events.Models.VenueDto;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Apex.Events.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Apex.Events.Services
 {
@@ -19,51 +20,62 @@ namespace Apex.Events.Services
             _logger = logger;
         }
 
-        // Get available venues from Apex.Venues API
-        public async Task<List<EventsVenueDto>> GetAvailableVenues(DateTime date, string eventType)
+        public async Task<List<VenueDto>> GetAvailableVenues(DateTime date, string eventType)
         {
-            // Workaround for Apex.Venues date/time filtering bug:
-            // include endDate = next day so times within the selected day are included.
-            var endDate = date.Date.AddDays(1);
+            try
+            {
+                // Workaround: Apex.Venues compares a.Date <= endDate.Date
+                // but seeded availability has a time component. So include next day.
+                var endDate = date.Date.AddDays(1);
 
-            var url =
-                $"api/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
+                var url = $"api/availability?eventType={eventType}&beginDate={date:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
+                _logger.LogInformation("Calling Venues availability: {Url}", url);
 
-            var response = await _httpClient.GetAsync(url);
+                var response = await _httpClient.GetAsync(url);
 
-            if (!response.IsSuccessStatusCode)
-                return new List<EventsVenueDto>();
+                if (!response.IsSuccessStatusCode)
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Reserve failed: {Status}. Body: {Body}", response.StatusCode, body);
+                    return null;
+                }
 
-            var venues = await response.Content.ReadFromJsonAsync<List<EventsVenueDto>>()
-                         ?? new List<EventsVenueDto>();
+                var venues = await response.Content.ReadFromJsonAsync<List<VenueDto>>() ?? new List<VenueDto>();
 
-            // Keep only venues for the selected day
-            return venues.Where(v => v.Date.Date == date.Date).ToList();
+                // keep only the selected date
+                return venues.Where(v => v.Date.Date == date.Date).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching available venues");
+                return new List<VenueDto>();
+            }
         }
 
-
-
-
-        // Reserve a venue
         public async Task<string?> ReserveVenue(DateTime eventDate, string venueCode)
         {
             try
             {
                 var request = new
                 {
-                    EventDate = eventDate,
+                    EventDate = eventDate.Date,
                     VenueCode = venueCode
                 };
 
                 var response = await _httpClient.PostAsJsonAsync("api/reservations", request);
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning($"Failed to reserve venue. Status: {response.StatusCode}");
+                    var body = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Reserve failed: {Status} Body: {Body}", response.StatusCode, body);
                     return null;
                 }
 
-                var result = await response.Content.ReadFromJsonAsync<ReservationResponse>();
+                // Apex.Venues returns ReservationGetDto shape (includes Reference)
+                var result = await response.Content.ReadFromJsonAsync<ReservationGetDto>();
+                _logger.LogInformation("✅ Reserved. Reference={Ref}", result?.Reference);
                 return result?.Reference;
+
             }
             catch (Exception ex)
             {
@@ -72,7 +84,6 @@ namespace Apex.Events.Services
             }
         }
 
-        // Free a reservation
         public async Task<bool> FreeReservation(string reference)
         {
             try
@@ -85,12 +96,6 @@ namespace Apex.Events.Services
                 _logger.LogError(ex, "Error freeing reservation");
                 return false;
             }
-        }
-
-        // DTO for reservation response
-        private class ReservationResponse
-        {
-            public string? Reference { get; set; }
         }
     }
 }

@@ -1,15 +1,14 @@
-﻿using Apex.Events.Models;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Apex.Events.Data;          // ✅ EF entity Event + DbContext
+using Apex.Events.Models;        // ✅ DTOs: EventTypeDTO, VenueDto
+using Apex.Events.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
-using Apex.Events.Data;
-using Apex.Events.Services;
 
 namespace Apex.Events.Pages.EventsList
 {
@@ -37,7 +36,7 @@ namespace Apex.Events.Pages.EventsList
         // =======================
 
         [BindProperty]
-        public Event Event { get; set; } = new();
+        public Event Event { get; set; } = new(); // ✅ IMPORTANT: Apex.Events.Data.Event
 
         [BindProperty]
         public string SelectedEventTypeId { get; set; } = string.Empty;
@@ -48,7 +47,6 @@ namespace Apex.Events.Pages.EventsList
         [BindProperty]
         public string SelectedVenueCode { get; set; } = string.Empty;
 
-        [BindProperty]
         public bool VenuesLoaded { get; set; }
 
         // =======================
@@ -75,26 +73,24 @@ namespace Apex.Events.Pages.EventsList
 
         public async Task<IActionResult> OnPostLoadVenuesAsync()
         {
-            // We are only loading venues; user hasn't selected a venue yet
+            // We're not creating yet; don't validate SelectedVenueCode as required here.
             ModelState.Remove(nameof(SelectedVenueCode));
-            ModelState.Remove("Event.VenueCode"); // extra safety if Event.VenueCode is [Required]
 
             await LoadEventTypes();
 
-            if (string.IsNullOrEmpty(SelectedEventTypeId))
+            if (string.IsNullOrWhiteSpace(SelectedEventTypeId))
             {
                 ModelState.AddModelError("", "Please select an event type.");
                 return Page();
             }
 
-            if (SelectedDate < DateTime.Today)
+            if (SelectedDate.Date < DateTime.Today)
             {
                 ModelState.AddModelError("", "Event date cannot be in the past.");
                 return Page();
             }
 
-            AvailableVenues = await _venueService
-                .GetAvailableVenues(SelectedDate, SelectedEventTypeId);
+            AvailableVenues = await _venueService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
 
             VenuesLoaded = true;
 
@@ -112,54 +108,56 @@ namespace Apex.Events.Pages.EventsList
 
         public async Task<IActionResult> OnPostAsync()
         {
+            _logger.LogInformation(
+                "🔥 OnPostAsync fired. Name={Name}, Type={Type}, Date={Date}, Venue={Venue}",
+                Event?.EventName,
+                SelectedEventTypeId,
+                SelectedDate.ToString("yyyy-MM-dd"),
+                SelectedVenueCode
+            );
+
+            TempData["DebugCreate"] =
+                $"POST fired: {Event?.EventName} / {SelectedEventTypeId} / {SelectedDate:yyyy-MM-dd} / {SelectedVenueCode}";
+
             await LoadEventTypes();
 
-            // Basic validation (more explicit than relying on ModelState alone)
+            // Basic checks
+            if (string.IsNullOrWhiteSpace(Event?.EventName))
+                ModelState.AddModelError("", "Event name is required.");
+
             if (string.IsNullOrWhiteSpace(SelectedEventTypeId))
                 ModelState.AddModelError("", "Please select an event type.");
 
-            if (SelectedDate < DateTime.Today)
+            if (SelectedDate.Date < DateTime.Today)
                 ModelState.AddModelError("", "Event date cannot be in the past.");
 
             if (string.IsNullOrWhiteSpace(SelectedVenueCode))
                 ModelState.AddModelError("", "Please select a venue.");
 
-            if (string.IsNullOrWhiteSpace(Event.EventName))
-                ModelState.AddModelError("", "Event name is required.");
-
-            // If invalid, keep venues visible + repopulate dropdown
             if (!ModelState.IsValid)
             {
+                // keep dropdown visible and filled
                 VenuesLoaded = true;
-
-                AvailableVenues = await _venueService
-                    .GetAvailableVenues(SelectedDate, SelectedEventTypeId);
-
+                AvailableVenues = await _venueService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
                 return Page();
             }
 
-            // ✅ Reserve venue in Apex.Venues first (requirement)
+            // 1) Reserve in Apex.Venues first
             var reference = await _venueService.ReserveVenue(SelectedDate, SelectedVenueCode);
 
             if (string.IsNullOrWhiteSpace(reference))
             {
-                ModelState.AddModelError("", "Failed to reserve venue. Please try another venue/date.");
-
+                ModelState.AddModelError("", "Failed to reserve venue. Please choose another venue/date.");
                 VenuesLoaded = true;
-                AvailableVenues = await _venueService
-                    .GetAvailableVenues(SelectedDate, SelectedEventTypeId);
-
+                AvailableVenues = await _venueService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
                 return Page();
             }
 
-            // Save event locally
-            Event.EventDate = SelectedDate;
+            // 2) Save in Apex.Events
+            Event.EventDate = SelectedDate.Date;
             Event.EventTypeId = SelectedEventTypeId;
             Event.VenueCode = SelectedVenueCode;
-            Event.ReservationReference = reference;
-
-            // If your Event model has a field for the reservation reference, store it:
-            // Event.VenueReservationReference = reference;
+            Event.ReservationReference = reference; // ✅ this links your event to Venues reservation
 
             _context.Events.Add(Event);
 
@@ -169,27 +167,19 @@ namespace Apex.Events.Pages.EventsList
             }
             catch (Exception ex)
             {
-                // If DB save fails, free the reservation so you don't leak reservations
+                // Roll back the reservation if local save fails
+                _logger.LogError(ex, "DB save failed; freeing reservation {Ref}", reference);
                 await _venueService.FreeReservation(reference);
 
-                _logger.LogError(ex, "Failed to save event");
-                ModelState.AddModelError("", "Database error while saving event.");
-
+                ModelState.AddModelError("", "Database error while saving the event.");
                 VenuesLoaded = true;
-                AvailableVenues = await _venueService
-                    .GetAvailableVenues(SelectedDate, SelectedEventTypeId);
-
+                AvailableVenues = await _venueService.GetAvailableVenues(SelectedDate, SelectedEventTypeId);
                 return Page();
             }
 
             TempData["Success"] = "Event created successfully.";
             return RedirectToPage("./Index");
         }
-
-
-        // =======================
-        // HELPERS
-        // =======================
 
         private async Task LoadEventTypes()
         {

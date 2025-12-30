@@ -33,7 +33,9 @@ builder.Services.AddScoped<DbTestDataInitializer>();
 // EventTypeService
 builder.Services.AddHttpClient<EventTypeService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7088/");
+    var baseUrl = builder.Configuration["VenuesApi:BaseUrl"];
+    client.BaseAddress = new Uri(baseUrl!);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
 // VenueReservationService – FIXED DI issue
@@ -63,8 +65,8 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<EventsDbContext>();
     dbContext.Database.EnsureCreated();
 
-    var initializer = scope.ServiceProvider.GetRequiredService<DbTestDataInitializer>();
-    initializer.Initialize();
+    //var initializer = scope.ServiceProvider.GetRequiredService<DbTestDataInitializer>();
+    //initializer.Initialize();
 }
 
 // Middleware
@@ -97,29 +99,5 @@ app.MapGet("/testvenues", () => Results.Redirect("/TestVenues"));
 app.MapGet("/test", () => Results.Redirect("/TestVenues"));
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
 
-// Test Apex.Venues connection on startup
-//app.Lifetime.ApplicationStarted.Register(() =>
-//{
-//    using var scope = app.Services.CreateScope();
-//    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-//    logger.LogInformation("Application started");
-
-//    try
-//    {
-//        var clientFactory = scope.ServiceProvider.GetRequiredService<IHttpClientFactory>();
-//        var client = clientFactory.CreateClient();
-//        client.BaseAddress = new Uri("https://localhost:7088/");
-//        client.Timeout = TimeSpan.FromSeconds(10);
-
-//        var response = client.GetAsync("api/eventtypes").Result;
-//        logger.LogInformation(response.IsSuccessStatusCode
-//            ? "✅ Connected to Apex.Venues API"
-//            : $"⚠️ Apex.Venues API returned status: {response.StatusCode}");
-//    }
-//    catch (Exception ex)
-//    {
-//        logger.LogError(ex, "❌ Failed to connect to Apex.Venues API. Start Apex.Venues first on port 7088.");
-//    }
-//});
 
 app.Run();
