@@ -60,13 +60,11 @@ builder.Services.AddHttpClient<IVenueReservationService, VenueReservationService
 var app = builder.Build();
 
 // Seed DB
+// Apply migrations (recommended instead of EnsureCreated)
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<EventsDbContext>();
-    dbContext.Database.EnsureCreated();
-
-    //var initializer = scope.ServiceProvider.GetRequiredService<DbTestDataInitializer>();
-    //initializer.Initialize();
+    dbContext.Database.Migrate();
 }
 
 // Middleware

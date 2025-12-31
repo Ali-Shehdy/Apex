@@ -8,8 +8,8 @@
     <div class="alert alert-warning">@TempData["DebugCreate"]</div>
 }
 
-<!-- ================= FORM 1: LOAD VENUES ================= -->
-<form method="post" asp-page-handler="LoadVenues" class="mb-4">
+<!-- ================= FORM: LOAD VENUES + CREATE EVENT ================= -->
+<form method="post" asp-page="./Create" class="mb-4">
 
     <div asp-validation-summary="All" class="text-danger"></div>
 
@@ -32,25 +32,11 @@
         <input asp-for="SelectedDate" type="date" class="form-control" />
     </div>
 
-    <button type="submit" class="btn btn-secondary">
+    <button type="submit" class="btn btn-secondary" asp-page-handler="LoadVenues">
         Load Available Venues
     </button>
-</form>
 
-@if (Model.VenuesLoaded)
-{
-    <hr />
-
-    <!-- ================= FORM 2: CREATE EVENT ================= -->
-        
-
-    <form method="post" asp-page-handler="">
         <div asp-validation-summary="All" class="text-danger"></div>
-
-        <input type="hidden" asp-for="Event.EventName" />
-        <input type="hidden" asp-for="SelectedEventTypeId" />
-        <input type="hidden" asp-for="SelectedDate" />
-        <input type="hidden" asp-for="VenuesLoaded" />
 
         <div class="mb-3">
             <label>Available Venues</label>
@@ -65,7 +51,7 @@
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" asp-page-handler="Create">
             Create Event
         </button>
 

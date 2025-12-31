@@ -38,14 +38,11 @@ namespace Apex.Events.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     var body = await response.Content.ReadAsStringAsync();
-                    _logger.LogWarning("Reserve failed: {Status}. Body: {Body}", response.StatusCode, body);
-                    return null;
+                    _logger.LogWarning("Availability failed: {Status}. Body: {Body}", response.StatusCode, body);
+                    return new List<VenueDto>();
                 }
 
-                var venues = await response.Content.ReadFromJsonAsync<List<VenueDto>>() ?? new List<VenueDto>();
-
-                // keep only the selected date
-                return venues.Where(v => v.Date.Date == date.Date).ToList();
+                return await response.Content.ReadFromJsonAsync<List<VenueDto>>() ?? new List<VenueDto>();
             }
             catch (Exception ex)
             {
@@ -64,7 +61,7 @@ namespace Apex.Events.Services
                     VenueCode = venueCode
                 };
 
-                var response = await _httpClient.PostAsJsonAsync("api/reservations", request);
+                var response = await _httpClient.PostAsJsonAsync("api/venue/reserve", request);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -90,7 +87,7 @@ namespace Apex.Events.Services
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"api/reservations/{reference}");
+                var response = await _httpClient.DeleteAsync($"api/venue/reserve/{reference}");
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)

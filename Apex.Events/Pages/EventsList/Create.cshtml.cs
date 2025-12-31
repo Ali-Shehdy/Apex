@@ -113,9 +113,9 @@ namespace Apex.Events.Pages.EventsList
         // CREATE EVENT
         // =======================
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostCreateAsync()
         {
-            TempData["DebugCreate"] = "STEP 1: Entered OnPostAsync ✅";
+            TempData["DebugCreate"] = "STEP 1: Entered OnPostCreateAsync ✅";
 
             _logger.LogInformation(
                 "Create POST: Name={Name}, Type={Type}, Date={Date}, Venue={Venue}",
