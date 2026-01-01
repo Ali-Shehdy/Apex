@@ -13,5 +13,7 @@ namespace Apex.Events.Services
         Task<string?> ReserveVenue(DateTime eventDate, string venueCode);
 
         Task<bool> FreeReservation(string reference);
+
+        Task<ReservationGetDto?> GetReservationDetails(string reference);
     }
 }

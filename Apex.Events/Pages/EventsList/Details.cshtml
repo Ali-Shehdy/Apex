@@ -15,12 +15,92 @@
         <dt class="col-sm-2">Event Date</dt>
         <dd class="col-sm-10">@Model.Event.EventDate.ToShortDateString()</dd>
 
-        
-
         <dt class="col-sm-2">Reservation Ref</dt>
         <dd class="col-sm-10">@Model.Event.ReservationReference</dd>
+
+        <dt class="col-sm-2">Venue</dt>
+        <dd class="col-sm-10">
+            @if (Model.Reservation?.Venue != null)
+            {
+                @($"{Model.Reservation.Venue.Name} ({Model.Reservation.Venue.Code})")
+            }
+            else
+            {
+                @Model.Event.VenueCode
+            }
+        </dd>
+
+        <dt class="col-sm-2">Venue Summary</dt>
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrWhiteSpace(Model.Reservation?.Venue?.Description))
+            {
+                @Model.Reservation!.Venue!.Description
+            }
+            else
+            {
+                <span class="text-muted">No venue summary available.</span>
+            }
+        </dd>
     </dl>
 </div>
+
+<h2 class="mt-4">Staff Details</h2>
+@if (Model.Event.Staffings.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Email</th>
+                <th>Phone</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var staffing in Model.Event.Staffings)
+            {
+                <tr>
+                    <td>@($"{staffing.Staff.FirstName} {staffing.Staff.LastName}")</td>
+                    <td>@staffing.Staff.Role</td>
+                    <td>@staffing.Staff.Email</td>
+                    <td>@staffing.Staff.Phone</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">No staff assigned to this event.</p>
+}
+
+<h2 class="mt-4">Guest Details</h2>
+@if (Model.Event.GuestBookings.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Booked On</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model.Event.GuestBookings)
+            {
+                <tr>
+                    <td>@($"{booking.Guest.FirstName} {booking.Guest.LastName}")</td>
+                    <td>@booking.Guest.Email</td>
+                    <td>@booking.BookingDate.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">No guests booked for this event.</p>
+}
 
 <a asp-page="Edit" asp-route-id="@Model.Event.EventId" class="btn btn-primary">Edit</a>
 <a asp-page="Index" class="btn btn-secondary">Back</a>

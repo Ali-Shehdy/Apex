@@ -96,5 +96,33 @@ namespace Apex.Events.Services
                 return false;
             }
         }
+
+
+        public async Task<ReservationGetDto?> GetReservationDetails(string reference)
+        {
+            if (string.IsNullOrWhiteSpace(reference))
+            {
+                return null;
+            }
+
+            try
+            {
+                var response = await _httpClient.GetAsync($"api/reservations/{reference}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var body = await response.Content.ReadAsStringAsync();
+                    _logger.LogWarning("Reservation lookup failed: {Status}. Body: {Body}", response.StatusCode, body);
+                    return null;
+                }
+
+                return await response.Content.ReadFromJsonAsync<ReservationGetDto>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching reservation details");
+                return null;
+            }
+        }
     }
 }
