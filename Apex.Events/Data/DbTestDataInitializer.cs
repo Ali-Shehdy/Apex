@@ -11,7 +11,6 @@
 
         public void Initialize()
         {
-            //_context.Database.EnsureCreated();
 
             if (_context.Events.Any())
             {
