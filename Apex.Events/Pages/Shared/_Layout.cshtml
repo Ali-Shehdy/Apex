@@ -13,25 +13,66 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Apex.Events</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+            <div class="container-fluid">
+
+                
+
+                <!-- Mobile toggle -->
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+
+                <!-- Menu -->
+                <div class="collapse navbar-collapse" id="mainNavbar">
+                    <ul class="navbar-nav mx-auto gap-lg-2">
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+                            <a class="nav-link fw-semibold text-dark" asp-page="/Index">
+                                <i class="bi bi-house-door me-1"></i> Home
+                            </a>
                         </li>
+
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
+                            <a class="nav-link fw-semibold text-dark" asp-page="/EventsList/Index">
+                                <i class="bi bi-calendar-event me-1"></i> Events
+                            </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-dark" asp-page="/GuestBookings/Index">
+                                <i class="bi bi-journal-check me-1"></i> Guest Bookings
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-dark" asp-page="/GuestsList/Index">
+                                <i class="bi bi-people me-1"></i> Guests
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-dark" asp-page="/Staffs/Index">
+                                <i class="bi bi-people-fill me-1"></i> Staff
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link fw-semibold text-dark" asp-page="/Staffings/Index">
+                                <i class="bi bi-briefcase-fill me-1"></i> Staffing
+                            </a>
+                        </li>
+
                     </ul>
                 </div>
             </div>
         </nav>
+
     </header>
     <div class="container">
         <main role="main" class="pb-3">
