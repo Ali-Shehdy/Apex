@@ -68,4 +68,48 @@ else
             </tbody>
         </table>
     </div>
-}
+
+    <h2 class="mt-5">Upcoming Events Without a First Aider</h2>
+    @if (!Model.UpcomingEventsWithoutFirstAider.Any())
+    {
+        <div class="alert alert-success">
+            All upcoming events have a first aider assigned.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Date</th>
+                        <th>Event Type</th>
+                        <th>Venue</th>
+                        <th>Reservation Ref</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.UpcomingEventsWithoutFirstAider)
+                    {
+                        <tr>
+                            <td>@item.EventName</td>
+                            <td>@item.EventDate.ToString("dd/MM/yyyy")</td>
+                            <td>@item.EventTypeId</td>
+                            <td>@item.VenueCode</td>
+                            <td>@item.ReservationReference</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-page="./Edit" asp-route-id="@item.EventId" class="btn btn-warning">Edit</a>
+                                    <a asp-page="./Details" asp-route-id="@item.EventId" class="btn btn-info">Details</a>
+                                    <a asp-page="./Delete" asp-route-id="@item.EventId" class="btn btn-danger">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    }
