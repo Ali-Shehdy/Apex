@@ -80,12 +80,41 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - Apex.Events - <a asp-area="" asp-page="/Privacy">Privacy</a>
-        </div>
+    <footer class="border-top bg-white mt-4">
+        <div class="container py-3">
 
+            <!-- Top row: Logo + Contact -->
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3 mb-2">
+
+                <!-- Logo -->
+                <div class="d-flex align-items-center">
+                    <img src="~/images/TU.png" alt="Logo"
+                         style="height:50px; width:auto;">
+                </div>
+
+                <!-- Contact Info -->
+                <div class="d-flex flex-column flex-md-row align-items-center gap-3 text-dark fw-semibold">
+                    <div>
+                        <i class="bi bi-person-fill me-1"></i> Ali Shehdy
+                    </div>
+                    <div>
+                        <i class="bi bi-envelope-fill me-1"></i> E4337126@live.tees.ac.uk
+                    </div>
+                    <div>
+                        <i class="bi bi-telephone-fill me-1"></i> (+44)7597058341
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom row: Copyright -->
+            <div class="text-center text-muted small">
+                &copy; 2024 - Apex.Events -
+                <a asp-area="" asp-page="/Privacy" class="text-decoration-none">Privacy</a>
+            </div>
+
+        </div>
     </footer>
+
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
