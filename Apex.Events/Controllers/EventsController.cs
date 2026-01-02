@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Apex.Events.Data; 
+﻿using Apex.Events.Data; 
 using Apex.Events.Dto; 
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Apex.Events.Services;
 
 namespace Apex.Events.Controllers
 {
@@ -10,10 +11,12 @@ namespace Apex.Events.Controllers
     public class EventsController : ControllerBase
     {
         private readonly EventsDbContext _context;
+        private readonly IVenueReservationService _venueReservationService;
 
-        public EventsController(EventsDbContext context)
+        public EventsController(EventsDbContext context, IVenueReservationService venueReservationService)
         {
             _context = context;
+            _venueReservationService = venueReservationService;
         }
 
         // POST: api/events
@@ -111,7 +114,23 @@ namespace Apex.Events.Controllers
                 return NotFound();
             }
 
-            _context.Events.Remove(evnt);
+            var staffings = await _context.Staffings
+                         .Where(s => s.EventId == id)
+                         .ToListAsync();
+
+            if (staffings.Count > 0)
+            {
+                _context.Staffings.RemoveRange(staffings);
+            }
+
+            if (!string.IsNullOrWhiteSpace(evnt.ReservationReference))
+            {
+                await _venueReservationService.FreeReservation(evnt.ReservationReference);
+            }
+
+            evnt.ReservationReference = null;
+            evnt.VenueCode = null;
+            evnt.IsCancelled = true;
             await _context.SaveChangesAsync();
 
             return NoContent();

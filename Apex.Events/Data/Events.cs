@@ -14,6 +14,7 @@ namespace Apex.Events.Data
         public string EventName { get; set; } = string.Empty; // Not Nullable
         public DateTime EventDate { get; set; }
         public string? EventTypeId { get; set; }
+        public bool IsCancelled { get; set; }
 
         // Navigation property
         public virtual ICollection<GuestBooking> GuestBookings { get; set; } = new List<GuestBooking>();

@@ -43,6 +43,10 @@ namespace Apex.Events.Data
                 .WithMany(st => st.Staffings)
                 .HasForeignKey(s => s.StaffId);
 
+
+            modelBuilder.Entity<Event>()
+    .HasQueryFilter(e => !e.IsCancelled);
+
             // --- SEEDING ---
             //modelBuilder.Entity<Event>().HasData(
             //    new Event { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1), EventType = EventType.Conference },

@@ -34,15 +34,25 @@ role-based staffing checks.
 - **Event-driven sync:** Publish venue updates to a message bus and keep a cached copy in Events (more robust but adds infrastructure).
 
 ### 2) Soft delete vs. hard delete for events
-**Challenge:** Cancelling an event should preserve historical data while freeing resources (venue reservations and staff assignments).
+**Challenge:** Cancelling an event should preserve historical data while freeing resources (venue reservations and staff assignments). It also needs to avoid breaking existing screens that query event data.
 
 **Primary approach:** Soft delete events by marking them cancelled and removing associated staff assignments; hide cancelled events in lists/details.
 
 **Alternative solutions:**
 - **Hard delete:** Remove records entirely (simpler but loses audit/history).
 - **Separate status table:** Track cancellation in a separate table and join on queries (more normalization but adds query complexity).
+- **Archival database:** Move cancelled events to an archive DB (keeps active tables small but adds cross-database reporting overhead).
 
-### 3) Staff coverage visibility
+### 3) Schema drift (missing columns after model changes)
+**Challenge:** Adding new model properties (like `IsCancelled`) can break existing SQLite databases with errors such as `no such column`. Team members may also run different schema versions locally.
+
+**Primary approach:** Apply EF Core migrations during app startup (`Database.Migrate()`), ensuring the DB schema matches the current model.
+
+**Alternative solutions:**
+- **Manual SQL patch:** Execute `ALTER TABLE` to add new columns when migrations cannot run (fast but must be tracked and documented).
+- **Database reset:** Delete and recreate local DBs when data preservation is not required (simple but destructive).
+
+### 4) Staff coverage visibility
 **Challenge:** Event organizers need a quick view of upcoming events without staff or required roles.
 
 **Primary approach:** Add a secondary list that filters upcoming events with no staff and sorts by date.
@@ -53,6 +63,8 @@ role-based staffing checks.
 
 ### References
 - Microsoft Docs: Entity Framework Core overview — https://learn.microsoft.com/ef/core/
+- Microsoft Docs: EF Core migrations — https://learn.microsoft.com/ef/core/managing-schemas/migrations/
+- Microsoft Docs: Applying migrations (`Database.Migrate()`) — https://learn.microsoft.com/ef/core/managing-schemas/migrations/applying
 - Microsoft Docs: ASP.NET Core Razor Pages — https://learn.microsoft.com/aspnet/core/razor-pages/
 - Microsoft Docs: ASP.NET Core Web API overview — https://learn.microsoft.com/aspnet/core/web-api/
 - Microsoft Docs: Architectural styles (microservices) — https://learn.microsoft.com/dotnet/architecture/microservices/
