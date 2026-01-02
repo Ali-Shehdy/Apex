@@ -52,7 +52,9 @@ namespace Apex.Events.Pages.GuestsList
             if (guest != null)
             {
                 Guest = guest;
-                _context.Guests.Remove(Guest);
+                Guest.FirstName = "Masked";
+                Guest.LastName = "Guest";
+                Guest.Email = $"Masked+{Guest.GuestId}@example.invalid";
                 await _context.SaveChangesAsync();
             }
 
