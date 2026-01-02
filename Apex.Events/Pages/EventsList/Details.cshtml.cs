@@ -5,6 +5,7 @@ using Apex.Venues.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,7 @@ namespace Apex.Events.EventsList
 
         public Event Event { get; set; } = default!;
         public ReservationGetDto? Reservation { get; set; }
-
+        public VenueDto? VenueDetails { get; set; }
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
@@ -49,10 +50,20 @@ namespace Apex.Events.EventsList
                 Event = events;
             }
 
-
-            if (!string.IsNullOrWhiteSpace(Event.ReservationReference))
+            var venueReservationService = HttpContext.RequestServices.GetService<IVenueReservationService>();
+            if (venueReservationService != null && !string.IsNullOrWhiteSpace(Event.ReservationReference))
             {
-                Reservation = await _venueReservationService.GetReservationDetails(Event.ReservationReference);
+                Reservation = await venueReservationService.GetReservationDetails(Event.ReservationReference);
+                VenueDetails = Reservation?.Venue;
+            }
+
+            if (venueReservationService != null
+                && VenueDetails == null
+                && !string.IsNullOrWhiteSpace(Event.VenueCode)
+                && !string.IsNullOrWhiteSpace(Event.EventTypeId))
+            {
+                var availableVenues = await venueReservationService.GetAvailableVenues(Event.EventDate, Event.EventTypeId);
+                VenueDetails = availableVenues.FirstOrDefault(v => v.Code == Event.VenueCode);
             }
             return Page();
         }

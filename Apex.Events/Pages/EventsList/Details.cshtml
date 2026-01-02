@@ -5,102 +5,401 @@
     ViewData["Title"] = "Event Details";
 }
 
-<h1>Event Details</h1>
+<style>
+    /* Page-only styling (safe + readable even with strong global themes) */
+    .ev-details {
+        background: #f6f7fb;
+        min-height: 100vh;
+        padding: 24px 0;
+        color: #111 !important;
+    }
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">Event Name</dt>
-        <dd class="col-sm-10">@Model.Event.EventName</dd>
+        .ev-details * {
+            color: inherit !important;
+            box-sizing: border-box;
+        }
 
-        <dt class="col-sm-2">Event Date</dt>
-        <dd class="col-sm-10">@Model.Event.EventDate.ToShortDateString()</dd>
+    .ev-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 16px;
+    }
 
-        <dt class="col-sm-2">Reservation Ref</dt>
-        <dd class="col-sm-10">@Model.Event.ReservationReference</dd>
+    .ev-top {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
 
-        <dt class="col-sm-2">Venue</dt>
-        <dd class="col-sm-10">
-            @if (Model.Reservation?.Venue != null)
+    .ev-breadcrumb {
+        font-size: 13px;
+        opacity: .7;
+        font-weight: 600;
+    }
+
+    .ev-title {
+        margin: 6px 0 0 0;
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .ev-sub {
+        margin: 6px 0 0 0;
+        font-size: 14px;
+        opacity: .75;
+        font-weight: 600;
+    }
+
+    .ev-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .ev-btn {
+        display: inline-block;
+        padding: 10px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 800;
+        border: 1px solid #dde3ef;
+        background: #fff;
+    }
+
+    .ev-btn-primary {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff !important;
+    }
+
+    .ev-btn:hover {
+        filter: brightness(0.98);
+    }
+
+    .ev-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 14px;
+    }
+
+   
+        grid-template-columns: 1fr 1fr;
+    }
+
+    }
+
+    .ev-card {
+        background: #fff;
+        border: 1px solid #e6ebf5;
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        overflow: hidden;
+    }
+
+    .ev-card-h {
+        padding: 14px 16px;
+        border-bottom: 1px solid #eef2fb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .ev-card-t {
+        font-weight: 900;
+        font-size: 15px;
+    }
+
+    .ev-card-b {
+        padding: 16px;
+    }
+
+    .ev-kv {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f3fa;
+    }
+
+        .ev-kv:last-child {
+            border-bottom: none;
+        }
+
+    .ev-k {
+        font-size: 13px;
+        font-weight: 800;
+        opacity: .8;
+    }
+
+    .ev-v {
+        font-size: 14px;
+        font-weight: 400;
+        word-break: break-word;
+    }
+
+    .ev-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid #e6ebf5;
+        background: #fafbff;
+        font-weight: 800;
+        font-size: 12.5px;
+        white-space: nowrap;
+    }
+
+    .ev-pill-ok {
+        background: #ecfdf3;
+        border-color: #bfe9cf;
+    }
+
+    .ev-muted {
+        opacity: .7;
+        font-weight: 400;
+    }
+
+    .ev-table-wrap {
+        border: 1px solid #e6ebf5;
+        border-radius: 12px;
+        overflow-x: auto;
+        background: #fff;
+    }
+
+    .ev-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 640px;
+    }
+
+        .ev-table th {
+            text-align: left;
+            font-size: 13px;
+            font-weight: 900;
+            background: #f3f6ff;
+            padding: 12px;
+            border-bottom: 1px solid #e6ebf5;
+        }
+
+        .ev-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f3fa;
+            font-size: 14px;
+            font-weight: 650;
+        }
+
+        .ev-table tr:last-child td {
+            border-bottom: none;
+        }
+
+    .ev-empty {
+        border: 1px dashed #cfd8ea;
+        background: #fafbff;
+        border-radius: 12px;
+        padding: 11px;
+        font-weight: 200;
+        opacity: .85;
+    }
+
+    .ev-bottom {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 18px 0 0 0;
+    }
+</style>
+
+<div class="ev-details">
+    <div class="ev-wrap">
+
+        <!-- Header -->
+        <div class="ev-top">
+            <div>
+                <div class="ev-breadcrumb">Events / Details</div>
+                <div class="ev-title">@Model.Event.EventName</div>
+                <div class="ev-sub">Event Date: <strong>@Model.Event.EventDate.ToShortDateString()</strong></div>
+            </div>
+
+            <div class="ev-actions">
+                <a asp-page="Edit" asp-route-id="@Model.Event.EventId" class="ev-btn ev-btn-primary">Edit</a>
+                <a asp-page="Index" class="ev-btn">Back</a>
+            </div>
+        </div>
+
+        <!-- Summary pills -->
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+            <span class="ev-pill">ID: @Model.Event.EventId</span>
+            <span class="ev-pill">👥 Staff: @Model.Event.Staffings.Count</span>
+            <span class="ev-pill">🎟 Guests: @Model.Event.GuestBookings.Count</span>
+            @if (!string.IsNullOrWhiteSpace(Model.Event.ReservationReference))
             {
-                @($"{Model.Reservation.Venue.Name} ({Model.Reservation.Venue.Code})")
+                <span class="ev-pill ev-pill-ok">Reservation: @Model.Event.ReservationReference</span>
             }
             else
             {
-                @Model.Event.VenueCode
+                <span class="ev-pill">Reservation: —</span>
             }
-        </dd>
+        </div>
 
-        <dt class="col-sm-2">Venue Summary</dt>
-        <dd class="col-sm-10">
-            @if (!string.IsNullOrWhiteSpace(Model.Reservation?.Venue?.Description))
-            {
-                @Model.Reservation!.Venue!.Description
-            }
-            else
-            {
-                <span class="text-muted">No venue summary available.</span>
-            }
-        </dd>
-    </dl>
+        <!-- Overview + Venue -->
+        <div class="ev-grid">
+
+            <div class="ev-card">
+                <div class="ev-card-h">
+                    <div class="ev-card-t">Overview</div>
+                </div>
+                <div class="ev-card-b">
+                    <div class="ev-kv">
+                        <div class="ev-k">Event Name</div>
+                        <div class="ev-v">@Model.Event.EventName</div>
+                    </div>
+                    <div class="ev-kv">
+                        <div class="ev-k">Event Date</div>
+                        <div class="ev-v">@Model.Event.EventDate.ToShortDateString()</div>
+                    </div>
+                    <div class="ev-kv">
+                        <div class="ev-k">Reservation Ref</div>
+                        <div class="ev-v">
+                            @if (!string.IsNullOrWhiteSpace(Model.Event.ReservationReference))
+                            {
+                                @Model.Event.ReservationReference
+                            }
+                            else
+                            {
+                                <span class="ev-muted">—</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ev-card">
+                <div class="ev-card-h">
+                    <div class="ev-card-t">Venue</div>
+                    <span class="ev-pill">🏛 Venue</span>
+                </div>
+                <div class="ev-card-b">
+                    <div class="ev-kv">
+                        <div class="ev-k">Venue Name</div>
+                        <div class="ev-v">
+                            @if (Model.VenueDetails != null)
+                            {
+                                @($"{Model.VenueDetails.Name} ({Model.VenueDetails.Code})")
+                            }
+                            else
+                            {
+                                @Model.Event.VenueCode
+                            }
+                        </div>
+                    </div>
+                    <div class="ev-kv">
+                        <div class="ev-k">Description</div>
+                        <div class="ev-v">
+                            @if (!string.IsNullOrWhiteSpace(Model.VenueDetails?.Description))
+                            {
+                                @Model.VenueDetails!.Description
+                            }
+                            else
+                            {
+                                <span class="ev-muted">No venue summary available.</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Staff -->
+        <div class="ev-card" style="margin-top:14px;">
+            <div class="ev-card-h">
+                <div class="ev-card-t">Staff</div>
+                <span class="ev-pill">Total Staff: @Model.Event.Staffings.Count</span>
+            </div>
+            <div class="ev-card-b">
+                @if (Model.Event.Staffings.Any())
+                {
+                    <div class="ev-table-wrap">
+                        <table class="ev-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Role</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var staffing in Model.Event.Staffings)
+                                {
+                                    <tr>
+                                        <td>@($"{staffing.Staff.FirstName} {staffing.Staff.LastName}")</td>
+                                        <td>@staffing.Staff.Role</td>
+                                        <td>@staffing.Staff.Email</td>
+                                        <td>@staffing.Staff.Phone</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="ev-empty">No staff assigned to this event.</div>
+                }
+            </div>
+        </div>
+
+        <!-- Guests -->
+        <div class="ev-card" style="margin-top:14px;">
+            <div class="ev-card-h">
+                <div class="ev-card-t">Guests</div>
+                <span class="ev-pill">Total Guests: @Model.Event.GuestBookings.Count</span>
+            </div>
+            <div class="ev-card-b">
+                @if (Model.Event.GuestBookings.Any())
+                {
+                    <div class="ev-table-wrap">
+                        <table class="ev-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Booked On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var booking in Model.Event.GuestBookings)
+                                {
+                                    <tr>
+                                        <td>@($"{booking.Guest.FirstName} {booking.Guest.LastName}")</td>
+                                        <td>@booking.Guest.Email</td>
+                                        <td>@booking.BookingDate.ToShortDateString()</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="ev-empty">No guests booked for this event.</div>
+                }
+            </div>
+        </div>
+
+        <!-- Bottom buttons -->
+        <div class="ev-bottom">
+            <a asp-page="Edit" asp-route-id="@Model.Event.EventId" class="ev-btn ev-btn-primary">Edit</a>
+            <a asp-page="Index" class="ev-btn">Back</a>
+        </div>
+
+    </div>
 </div>
-
-<h2 class="mt-4">Staff Details</h2>
-@if (Model.Event.Staffings.Any())
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Email</th>
-                <th>Phone</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var staffing in Model.Event.Staffings)
-            {
-                <tr>
-                    <td>@($"{staffing.Staff.FirstName} {staffing.Staff.LastName}")</td>
-                    <td>@staffing.Staff.Role</td>
-                    <td>@staffing.Staff.Email</td>
-                    <td>@staffing.Staff.Phone</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p class="text-muted">No staff assigned to this event.</p>
-}
-
-<h2 class="mt-4">Guest Details</h2>
-@if (Model.Event.GuestBookings.Any())
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Booked On</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var booking in Model.Event.GuestBookings)
-            {
-                <tr>
-                    <td>@($"{booking.Guest.FirstName} {booking.Guest.LastName}")</td>
-                    <td>@booking.Guest.Email</td>
-                    <td>@booking.BookingDate.ToShortDateString()</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p class="text-muted">No guests booked for this event.</p>
-}
-
-<a asp-page="Edit" asp-route-id="@Model.Event.EventId" class="btn btn-primary">Edit</a>
-<a asp-page="Index" class="btn btn-secondary">Back</a>
