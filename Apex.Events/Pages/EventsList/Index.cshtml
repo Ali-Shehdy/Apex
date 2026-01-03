@@ -41,9 +41,10 @@ else
                 <tr>
                     <th>Event Name</th>
                     <th>Date</th>
-                    <th>Event Type</th>
+                    <th> Type</th>
                     <th>Venue</th>
                     <th>Reservation Ref</th>
+                    <th>Staffing</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -56,6 +57,12 @@ else
                         <td>@item.EventTypeId</td>
                         <td>@item.VenueCode</td>
                         <td>@item.ReservationReference</td>
+                        <td>
+                            @if (Model.EventsWithStaffingWarning.Contains(item.EventId))
+                            {
+                                <span class="badge bg-warning text-dark">Needs more staff</span>
+                            }
+                        </td>
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <a asp-page="./Edit" asp-route-id="@item.EventId" class="btn btn-warning">Edit</a>
@@ -87,6 +94,7 @@ else
                         <th>Event Type</th>
                         <th>Venue</th>
                         <th>Reservation Ref</th>
+                        <th>Staffing</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -99,6 +107,12 @@ else
                             <td>@item.EventTypeId</td>
                             <td>@item.VenueCode</td>
                             <td>@item.ReservationReference</td>
+                            <td>
+                                @if (Model.EventsWithStaffingWarning.Contains(item.EventId))
+                                {
+                                    <span class="badge bg-warning text-dark">Needs more staff</span>
+                                }
+                            </td>
                             <td>
                                 <div class="btn-group btn-group-sm">
                                     <a asp-page="./Edit" asp-route-id="@item.EventId" class="btn btn-warning">Edit</a>

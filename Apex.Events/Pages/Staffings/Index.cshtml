@@ -36,6 +36,12 @@
                             </td>
 
                             <td class="text-center">
+                                @if (Model.EventsWithStaffingWarning.Contains(e.EventId))
+                                {
+                                    <div class="mb-2">
+                                        <span class="badge bg-warning text-dark">Needs more staff</span>
+                                    </div>
+                                }
 
                                 <!-- Wrap actions in flex container -->
                                 <div class="d-flex justify-content-center gap-2">
