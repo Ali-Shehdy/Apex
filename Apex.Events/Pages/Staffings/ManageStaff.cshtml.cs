@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Apex.Events.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -7,8 +8,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 
+
 namespace Apex.Events.Pages.Staffings
 {
+    [Authorize(Roles = "Manager,TeamLeader")]
     public class ManageStaffModel : PageModel
     {
         private readonly EventsDbContext _context;

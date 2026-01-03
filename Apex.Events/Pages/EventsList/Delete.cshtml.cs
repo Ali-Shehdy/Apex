@@ -1,5 +1,6 @@
 ﻿using Apex.Events.Data; // Ensure this using directive is present
 using Apex.Events.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Apex.Events.EventsList
 {
+    [Authorize(Roles = "Manager,TeamLeader")]
     public class DeleteModel : PageModel
     {
         private readonly Apex.Events.Data.EventsDbContext _context;

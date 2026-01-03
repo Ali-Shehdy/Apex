@@ -1,8 +1,10 @@
 ﻿using Apex.Events.Data;
 using Apex.Events.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Net.Security;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,17 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+    });
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ManagerOnly", policy => policy.RequireRole("Manager"));
+    options.AddPolicy("Leadership", policy => policy.RequireRole("Manager", "TeamLeader"));
+});
 
 // DbContext
 builder.Services.AddDbContext<EventsDbContext>(options =>
@@ -88,6 +101,26 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+if (app.Environment.IsDevelopment())
+{
+    app.Use(async (context, next) =>
+    {
+        if (context.User?.Identity?.IsAuthenticated != true)
+        {
+            var roles = builder.Configuration.GetSection("Auth:DefaultRoles").Get<string[]>() ?? Array.Empty<string>();
+            if (roles.Length > 0)
+            {
+                var claims = new List<Claim> { new Claim(ClaimTypes.Name, "dev-user") };
+                claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+                var identity = new ClaimsIdentity(claims, "Development");
+                context.User = new ClaimsPrincipal(identity);
+            }
+        }
+
+        await next();
+    });
+}
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();

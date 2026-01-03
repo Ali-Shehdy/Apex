@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Apex.Events.Data;
 
 namespace Apex.Events.Pages.Staffs
 {
+    [Authorize(Roles = "Manager")]
     public class CreateModel : PageModel
     {
         private readonly EventsDbContext _context;

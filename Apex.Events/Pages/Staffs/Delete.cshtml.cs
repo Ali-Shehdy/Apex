@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Apex.Events.Data;
 
 namespace Apex.Events.Pages.Staffs
 {
+    [Authorize(Roles = "Manager,TeamLeader")]
     public class DeleteModel : PageModel
     {
         private readonly EventsDbContext _context;
