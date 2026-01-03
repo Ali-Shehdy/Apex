@@ -34,7 +34,8 @@ role-based staffing checks.
 - **Event-driven sync:** Publish venue updates to a message bus and keep a cached copy in Events (more robust but adds infrastructure).
 
 ### 2) Soft delete vs. hard delete for events
-**Challenge:** Cancelling an event should preserve historical data while freeing resources (venue reservations and staff assignments). It also needs to avoid breaking existing screens that query event data.
+**Challenge:** Cancelling an event should preserve historical data while freeing resources (venue reservations and staff assignments).
+It also needs to avoid breaking existing screens that query event data.
 
 **Primary approach:** Soft delete events by marking them cancelled and removing associated staff assignments; hide cancelled events in lists/details.
 
@@ -56,7 +57,8 @@ role-based staffing checks.
 **Challenge:** Event organizers need a quick view of upcoming events without staff or required roles.
 
 **Primary approach:** Add a secondary list that filters upcoming events with no staff and sorts by date.
-
+Also show a clear warning badge in event lists whenever staffing is below the required ratio
+(fewer than one staff member per 10 guests).
 **Alternative solutions:**
 - **Role-based validation:** Enforce required roles at booking time and block event creation/confirmation.
 - **Dashboard widgets:** Create a dedicated staffing dashboard with role coverage indicators.
