@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿﻿@using System.Security.Claims
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -69,6 +70,30 @@
                         </li>
 
                     </ul>
+                    <div class="d-flex align-items-center gap-2 ms-lg-auto">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            var email = User.FindFirstValue(ClaimTypes.Email) ?? "Unknown";
+                            var role = User.FindFirstValue(ClaimTypes.Role);
+                            <span class="navbar-text fw-semibold text-dark">
+                                <i class="bi bi-person-circle me-1"></i>
+                                <span class="fw-bolder">Hi!</span>
+                                @email@(string.IsNullOrWhiteSpace(role) ? "" : $" ({role})")
+                            </span>
+                            <form method="post" asp-page="/Account/Logout" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Logout</button>
+                            </form>
+                            @if (User.IsInRole("Manager"))
+                            {
+                                <a class="btn btn-success btn-sm" asp-page="/Account/Register">Register Staff</a>
+                            }
+                        }
+                        else
+                        {
+                            <a class="btn btn-outline-primary btn-sm" asp-page="/Account/Login">Login</a>
+                        }
+                    </div>
+
                 </div>
             </div>
         </nav>
@@ -92,25 +117,35 @@
                          style="height:50px; width:auto;">
                 </div>
 
-                <!-- Contact Info -->
-                <div class="d-flex flex-column flex-md-row align-items-center gap-3 text-dark fw-semibold">
-                    <div>
-                        <i class="bi bi-person-fill me-1"></i> Ali Shehdy
+                
+
+                        <!-- Contact Info (one row) -->
+                        <div class="d-flex align-items-center gap-4 text-dark fw-semibold">
+
+                            <div>
+                                <i class="bi bi-person-fill me-1"></i> Ali Shehdy
+                            </div>
+
+                            <div>
+                                <i class="bi bi-envelope-fill me-1"></i> E4337126@live.tees.ac.uk
+                            </div>
+
+                            <div>
+                                <i class="bi bi-telephone-fill me-1"></i> (+44)7597058341
+                            </div>
+
+                            <div class="text-muted small">
+                                &copy; 2024 - Apex.Events -
+                                <a asp-area="" asp-page="/Privacy" class="text-decoration-none">Privacy</a>
+                            </div>
+
+                        </div>
                     </div>
-                    <div>
-                        <i class="bi bi-envelope-fill me-1"></i> E4337126@live.tees.ac.uk
-                    </div>
-                    <div>
-                        <i class="bi bi-telephone-fill me-1"></i> (+44)7597058341
-                    </div>
+
                 </div>
             </div>
 
-            <!-- Bottom row: Copyright -->
-            <div class="text-center text-muted small">
-                &copy; 2024 - Apex.Events -
-                <a asp-area="" asp-page="/Privacy" class="text-decoration-none">Privacy</a>
-            </div>
+            
 
         </div>
     </footer>
@@ -122,4 +157,5 @@
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
 </html>

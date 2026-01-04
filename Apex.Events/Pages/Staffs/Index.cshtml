@@ -3,11 +3,14 @@
 
 <h2 class="mb-4">Staff Members</h2>
 
-<div class="d-flex justify-content-end mb-3">
-    <a asp-page="Create" class="btn btn-primary">
-        <i class="bi bi-person-plus"></i> Add Staff
-    </a>
-</div>
+@if (User.IsInRole("Manager"))
+{
+    <div class="d-flex justify-content-end mb-3">
+        <a asp-page="Create" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> Add Staff
+        </a>
+    </div>
+}
 
 <div class="card shadow-sm">
     <table class="table table-hover mb-0">
@@ -32,12 +35,19 @@
                         <a asp-page="Details" asp-route-id="@s.StaffId" class="btn btn-sm btn-info me-1">
                             <i class="bi bi-eye"></i>
                         </a>
-                        <a asp-page="Edit" asp-route-id="@s.StaffId" class="btn btn-sm btn-warning me-1">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a asp-page="Delete" asp-route-id="@s.StaffId" class="btn btn-sm btn-danger">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                        
+                        @if (User.IsInRole("Manager"))
+                        {
+                            <a asp-page="Edit" asp-route-id="@s.StaffId" class="btn btn-sm btn-warning me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        }
+                        @if (User.IsInRole("Manager") || User.IsInRole("TeamLeader"))
+                        {
+                            <a asp-page="Delete" asp-route-id="@s.StaffId" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        }
                     </td>
                 </tr>
             }

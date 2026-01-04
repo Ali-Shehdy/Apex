@@ -5,9 +5,11 @@ using Apex.Events.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Apex.Events.Pages.Staffings
 {
+    [Authorize(Roles = "Manager,TeamLeader")]
     public class EditModel : PageModel
     {
         private readonly EventsDbContext _context;

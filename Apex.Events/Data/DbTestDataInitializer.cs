@@ -1,9 +1,9 @@
 ﻿namespace Apex.Events.Data
 {
-    public class DbTestDataInitializer
+    public class DbTestDataInitializer // : IDbTestDataInitializer
     {
 
-        private readonly EventsDbContext _context;
+        private readonly EventsDbContext _context; // Inject the DbContext
         public DbTestDataInitializer(EventsDbContext context)
         {
             _context = context;
@@ -21,8 +21,8 @@
                 new Event { EventId = 1, EventName = "Sample Event 1", EventDate = new DateTime(2024, 1, 1)},
                 new Event { EventId = 2, EventName = "Sample Event 2", EventDate = new DateTime(2024, 1, 2) }
             };
-            _context.Events.AddRange(eventList);
-            _context.SaveChanges();
+            _context.Events.AddRange(eventList); // Add events to the context
+            _context.SaveChanges(); // Save changes to the database
 
             var staffList = new List<Staff>
             {
@@ -33,14 +33,14 @@
             _context.Staffs.AddRange(staffList);
             _context.SaveChanges();
 
-            var guestList = new List<Guest>
+            var guestList = new List<Guest> // Add guests
             {
                 new Guest { GuestId = 1, FirstName = "Alice", LastName = "Johnson", Email = "A.Johnson@gmail.com" },
                 new Guest { GuestId = 2, FirstName = "Bob", LastName = "Brown", Email = "B.Brown" }
             };
 
-            _context.Guests.AddRange(guestList);
-            _context.SaveChanges();
+            _context.Guests.AddRange(guestList); // Add guests to the context
+            _context.SaveChanges(); // Save changes to the database
 
             var guestBookingList = new List<GuestBooking>
             {

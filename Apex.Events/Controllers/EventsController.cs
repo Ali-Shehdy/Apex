@@ -6,26 +6,27 @@ using Apex.Events.Services;
 
 namespace Apex.Events.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class EventsController : ControllerBase
+    [ApiController] // Indicates that this class is an API controller
+    [Route("api/[controller]")] // Sets the route for the API endpoints
+    public class EventsController : ControllerBase // Inherits from ControllerBase for API functionality
     {
-        private readonly EventsDbContext _context;
-        private readonly IVenueReservationService _venueReservationService;
+        private readonly EventsDbContext _context; // Database context for accessing event data
+        private readonly IVenueReservationService _venueReservationService; // Service for managing venue reservations
 
-        public EventsController(EventsDbContext context, IVenueReservationService venueReservationService)
+        // Constructor with dependency injection
+        public EventsController(EventsDbContext context, IVenueReservationService venueReservationService) 
         {
-            _context = context;
-            _venueReservationService = venueReservationService;
+            _context = context;    // Initialize the database context
+            _venueReservationService = venueReservationService; // Initialize the venue reservation service
         }
 
         // POST: api/events
-        [HttpPost]
-        public async Task<ActionResult<Event>> CreateEvent([FromBody]CreateEventDto dto)
+        [HttpPost] // Endpoint to create a new event
+        public async Task<ActionResult<Event>> CreateEvent([FromBody]CreateEventDto dto) // Accepts event data in the request body
         {
             if (dto == null)
             {
-                return BadRequest("Event data is invalid.");
+                return BadRequest("Event data is invalid."); // Return 400 Bad Request if the DTO is null
             }
 
             var newEvent = new Event
@@ -34,14 +35,13 @@ namespace Apex.Events.Controllers
                 EventDate = dto.EventDate,
             };
 
-            _context.Events.Add(newEvent);
+            _context.Events.Add(newEvent); // Add the new event to the database context
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetEvent), new { id = newEvent.EventId }, newEvent);
         }
 
-        // GET: api/events/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{id}")] // GET: api/events/{id}
         public async Task<ActionResult<Event>> GetEvent(int id)
         {
             var evnt = await _context.Events
@@ -69,7 +69,7 @@ namespace Apex.Events.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateEvent(int id, [FromBody] UpdateEventDto dto)
         {
-            if (id != dto.EventId || dto == null)
+            if (id != dto.EventId || dto == null) // Validate the event ID and DTO
             {
                 return BadRequest("Event data is invalid.");
             }
@@ -80,8 +80,8 @@ namespace Apex.Events.Controllers
                 return NotFound();
             }
 
-            existingEvent.EventName = dto.EventName;
-            existingEvent.EventDate = dto.EventDate;
+            existingEvent.EventName = dto.EventName; // Update event name
+            existingEvent.EventDate = dto.EventDate; // Update event date
 
             _context.Entry(existingEvent).State = EntityState.Modified;
 
@@ -106,7 +106,7 @@ namespace Apex.Events.Controllers
 
         // DELETE: api/events/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEvent(int id)
+        public async Task<IActionResult> DeleteEvent(int id) // Soft delete an event
         {
             var evnt = await _context.Events.FindAsync(id);
             if (evnt == null)
@@ -114,7 +114,7 @@ namespace Apex.Events.Controllers
                 return NotFound();
             }
 
-            var staffings = await _context.Staffings
+            var staffings = await _context.Staffings // Remove associated staffings
                          .Where(s => s.EventId == id)
                          .ToListAsync();
 
@@ -136,9 +136,9 @@ namespace Apex.Events.Controllers
             return NoContent();
         }
 
-        private bool EventExists(int id)
+        private bool EventExists(int id) // Check if an event exists by ID
         {
-            return _context.Events.Any(e => e.EventId == id);
+            return _context.Events.Any(e => e.EventId == id); // Return true if the event exists, otherwise false
         }
     }
 }

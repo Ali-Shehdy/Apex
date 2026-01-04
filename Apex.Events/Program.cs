@@ -78,7 +78,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<EventsDbContext>();
     dbContext.Database.Migrate();
-    EnsureEventCancellationColumn(dbContext);
+    DbSchemaInitializer.EnsureEventCancellationColumn(dbContext);
 }
 
 // Middleware
@@ -103,76 +103,81 @@ app.UseStaticFiles();
 app.UseRouting();
 if (app.Environment.IsDevelopment())
 {
-    app.Use(async (context, next) =>
+    var enableDevLogin = builder.Configuration.GetValue<bool>("Auth:EnableDevelopmentLogin");
+    if (enableDevLogin)
     {
-        if (context.User?.Identity?.IsAuthenticated != true)
+        app.Use(async (context, next) =>
         {
-            var roles = builder.Configuration.GetSection("Auth:DefaultRoles").Get<string[]>() ?? Array.Empty<string>();
-            if (roles.Length > 0)
+            if (context.User?.Identity?.IsAuthenticated != true)
             {
-                var claims = new List<Claim> { new Claim(ClaimTypes.Name, "dev-user") };
-                claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-                var identity = new ClaimsIdentity(claims, "Development");
-                context.User = new ClaimsPrincipal(identity);
+                var roles = builder.Configuration.GetSection("Auth:DefaultRoles").Get<string[]>() ?? Array.Empty<string>();
+                if (roles.Length > 0)
+                {
+                    var claims = new List<Claim> { new Claim(ClaimTypes.Name, "dev-user") };
+                    claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+                    var identity = new ClaimsIdentity(claims, "Development");
+                    context.User = new ClaimsPrincipal(identity);
+                }
             }
-        }
+            await next();
 
-        await next();
-    });
-}
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapRazorPages();
-app.MapControllers();
-
-// Test endpoints
-app.MapGet("/testvenues", () => Results.Redirect("/TestVenues"));
-app.MapGet("/test", () => Results.Redirect("/TestVenues"));
-app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
-
-
-app.Run();
-
-static void EnsureEventCancellationColumn(EventsDbContext dbContext)
-{
-    var connection = dbContext.Database.GetDbConnection();
-    var shouldClose = connection.State == System.Data.ConnectionState.Closed;
-
-    if (shouldClose)
-    {
-        connection.Open();
+        });
     }
 
-    try
-    {
-        using var command = connection.CreateCommand();
-        command.CommandText = "PRAGMA table_info(Events);";
-        using var reader = command.ExecuteReader();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
-        var hasColumn = false;
-        while (reader.Read())
-        {
-            var columnName = reader.GetString(1);
-            if (string.Equals(columnName, "IsCancelled", StringComparison.OrdinalIgnoreCase))
-            {
-                hasColumn = true;
-                break;
-            }
-        }
+    app.MapRazorPages();
+    app.MapControllers();
 
-        if (!hasColumn)
-        {
-            using var alterCommand = connection.CreateCommand();
-            alterCommand.CommandText = "ALTER TABLE Events ADD COLUMN IsCancelled INTEGER NOT NULL DEFAULT 0;";
-            alterCommand.ExecuteNonQuery();
-        }
-    }
-    finally
+    // Test endpoints
+    app.MapGet("/testvenues", () => Results.Redirect("/TestVenues"));
+    app.MapGet("/test", () => Results.Redirect("/TestVenues"));
+    app.MapGet("/health", () => Results.Ok(new { status = "Healthy", timestamp = DateTime.UtcNow }));
+
+
+    app.Run();
+
+    static void EnsureEventCancellationColumn(EventsDbContext dbContext)
     {
+        var connection = dbContext.Database.GetDbConnection();
+        var shouldClose = connection.State == System.Data.ConnectionState.Closed;
+
         if (shouldClose)
         {
-            connection.Close();
+            connection.Open();
+        }
+
+        try
+        {
+            using var command = connection.CreateCommand();
+            command.CommandText = "PRAGMA table_info(Events);";
+            using var reader = command.ExecuteReader();
+
+            var hasColumn = false;
+            while (reader.Read())
+            {
+                var columnName = reader.GetString(1);
+                if (string.Equals(columnName, "IsCancelled", StringComparison.OrdinalIgnoreCase))
+                {
+                    hasColumn = true;
+                    break;
+                }
+            }
+
+            if (!hasColumn)
+            {
+                using var alterCommand = connection.CreateCommand();
+                alterCommand.CommandText = "ALTER TABLE Events ADD COLUMN IsCancelled INTEGER NOT NULL DEFAULT 0;";
+                alterCommand.ExecuteNonQuery();
+            }
+        }
+        finally
+        {
+            if (shouldClose)
+            {
+                connection.Close();
+            }
         }
     }
 }

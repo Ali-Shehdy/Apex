@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Apex.Events.Data;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Apex.Events.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Apex.Events.Pages.Staffings
 {
+    [Authorize(Roles = "Manager,TeamLeader")]
     public class CreateModel : PageModel
     {
         private readonly EventsDbContext _context;
